@@ -16,6 +16,8 @@
     --blue-1: #1d4ed8;  --blue-2: #3b82f6;  --blue-3: #93c5fd;
     --green-1: #15803d; --green-2: #22c55e; --green-3: #86efac;
     --amber:  #fbbf24;
+    --cyan:   #22d3ee;
+    --violet: #a78bfa;
     --pos: #6abf6a;
     --neg: #f07070;
   }
@@ -27,19 +29,19 @@
   .subtitle { color: var(--text-dim); font-size: 13px; }
   .months-note { color: var(--text-faint); font-size: 12px; margin-top: 4px; }
 
-  .header-right { display: flex; align-items: center; gap: 14px; }
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
   .refresh-btn {
     background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim);
-    padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 12px;
-    display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
-    font-weight: 500;
+    padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;
+    display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s;
+    font-weight: 500; white-space: nowrap;
   }
   .refresh-btn:hover { color: var(--text); border-color: #4a4a4a; background: #333; }
   .refresh-btn:disabled { opacity: 0.5; cursor: wait; }
   .refresh-btn .refresh-icon { display: inline-block; transition: transform 0.6s; }
   .refresh-btn.spinning .refresh-icon { animation: spin 1s linear infinite; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .refreshed-stamp { color: var(--text-faint); font-size: 11px; text-align: right; }
+  .refreshed-stamp { color: var(--text-faint); font-size: 10.5px; text-align: right; white-space: nowrap; }
   .refreshed-stamp.error { color: var(--neg); }
 
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0; }
@@ -51,10 +53,10 @@
   /* Combined tabs + filters strip — sticky on scroll */
   .control-strip {
     display: flex; align-items: center; flex-wrap: wrap;
-    gap: 12px 18px; margin: 22px 0 14px;
+    gap: 8px 14px; margin: 18px 0 10px;
     position: sticky; top: 0; z-index: 50;
     background: var(--bg);
-    padding: 10px 0 12px;
+    padding: 8px 0 8px;
     border-bottom: 1px solid transparent;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
@@ -62,21 +64,26 @@
     border-bottom-color: var(--border);
     box-shadow: 0 2px 12px rgba(0,0,0,0.4);
   }
-  .tabs { display: flex; gap: 6px; background: var(--panel); padding: 4px; border-radius: 999px; border: 1px solid var(--border); }
-  .tab { padding: 8px 18px; border-radius: 999px; cursor: pointer; color: var(--text-dim); font-size: 13px; font-weight: 500; transition: all 0.15s; user-select: none; }
+  .tabs { display: flex; gap: 4px; background: var(--panel); padding: 3px; border-radius: 999px; border: 1px solid var(--border); }
+  .tab { padding: 5px 12px; border-radius: 999px; cursor: pointer; color: var(--text-dim); font-size: 12px; font-weight: 500; transition: all 0.15s; user-select: none; }
   .tab:hover { color: var(--text); }
   .tab.active { background: var(--panel-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--border); }
 
-  .filter-inline { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; flex: 1; position: relative; }
-  .filter-inline .label { color: var(--text-dim); font-size: 12px; margin-right: 2px; }
+  .filter-inline { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; flex: 1; position: relative; min-width: 0; }
+  .filter-inline .label { color: var(--text-dim); font-size: 11px; margin-right: 2px; }
   .filter-chip {
-    padding: 6px 14px; border-radius: 999px; background: var(--panel-2);
-    color: var(--text-dim); font-size: 12px; font-weight: 500; cursor: pointer;
+    padding: 4px 10px; border-radius: 999px; background: var(--panel-2);
+    color: var(--text-dim); font-size: 11px; font-weight: 500; cursor: pointer;
     border: 1px solid transparent; transition: all 0.15s; user-select: none;
+    white-space: nowrap;
   }
   .filter-chip:hover { color: var(--text); background: #333; }
   .filter-chip.active { background: #1a3a5c; color: #93c5fd; border-color: #3b82f6; }
-  .filter-summary { color: var(--text-faint); font-size: 12px; margin-left: auto; }
+  .filter-summary {
+    color: var(--text-faint); font-size: 11px; margin-left: auto;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 220px;
+  }
 
   .custom-panel {
     position: absolute; top: 100%; left: 0; right: auto;
@@ -101,29 +108,107 @@
   }
   .custom-panel-actions button:hover { color: var(--text); }
   .custom-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
-  .custom-list label {
+  .custom-list .custom-item {
     display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px;
-    cursor: pointer; font-size: 13px; position: relative;
+    font-size: 13px; position: relative;
   }
-  .custom-list label:hover { background: var(--panel-2); }
+  .custom-list .custom-item:hover { background: var(--panel-2); }
   .custom-list input[type=checkbox] { accent-color: var(--blue-2); cursor: pointer; }
-  .custom-list label .name-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .custom-list .person-tag { color: var(--text-faint); font-size: 10px; }
-  .custom-list label .only-btn {
-    display: none;
-    background: var(--blue-1); color: white;
-    border: none; padding: 2px 8px; border-radius: 3px;
-    font-size: 10px; font-weight: 600;
-    cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase;
+  .custom-list .name-text {
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    cursor: pointer; padding: 2px 4px; border-radius: 3px; transition: all 0.1s;
   }
-  .custom-list label:hover .only-btn { display: inline-block; }
-  .custom-list label .only-btn:hover { background: var(--blue-2); }
+  .custom-list .name-text:hover { color: var(--blue-3); background: rgba(59, 130, 246, 0.12); text-decoration: underline; }
+  .custom-list .person-tag { color: var(--text-faint); font-size: 10px; }
+
+  /* === Prospects button + panel === */
+  .prospects-inline { position: relative; flex-shrink: 0; }
+  .prospects-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text-dim); font-size: 11px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+    letter-spacing: 0.01em; white-space: nowrap;
+  }
+  .prospects-btn:hover { color: var(--text); border-color: #4a4a4a; }
+  .prospects-btn .prospects-icon { color: var(--amber); font-size: 12px; line-height: 1; }
+  .prospects-btn .prospects-count {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0 6px; font-size: 9.5px; color: var(--text-faint); font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .prospects-btn.active {
+    background: rgba(251, 191, 36, 0.10);
+    border-color: rgba(251, 191, 36, 0.55);
+    color: var(--amber);
+  }
+  .prospects-btn.active .prospects-count {
+    background: rgba(251, 191, 36, 0.18);
+    border-color: rgba(251, 191, 36, 0.5);
+    color: var(--amber);
+  }
+  .prospects-panel {
+    position: absolute; top: 100%; right: 0; left: auto;
+    width: 460px; max-width: calc(100vw - 64px);
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    margin-top: 8px; padding: 14px 16px; z-index: 100;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.55);
+    max-height: 420px; overflow-y: auto;
+    display: none;
+  }
+  .prospects-panel.open { display: block; }
+  .prospects-panel-head { margin-bottom: 10px; }
+  .prospects-panel-title {
+    color: var(--text); font-size: 13px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .prospects-panel-sub {
+    color: var(--text-faint); font-size: 11px; margin-top: 4px;
+  }
+  .prospects-actions { display: flex; gap: 8px; margin-bottom: 10px; }
+  .prospects-actions button {
+    padding: 4px 10px; background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text-dim); border-radius: 4px; font-size: 11px; cursor: pointer;
+  }
+  .prospects-actions button:hover { color: var(--text); }
+  .prospects-list { display: flex; flex-direction: column; gap: 6px; }
+  .prospect-item {
+    display: flex; gap: 10px; padding: 10px 12px;
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    cursor: pointer; transition: all 0.12s;
+  }
+  .prospect-item:hover { border-color: rgba(251, 191, 36, 0.45); }
+  .prospect-item.active {
+    background: rgba(251, 191, 36, 0.06);
+    border-color: rgba(251, 191, 36, 0.55);
+  }
+  .prospect-item input[type=checkbox] { margin-top: 2px; accent-color: var(--amber); cursor: pointer; }
+  .prospect-item .body { flex: 1; min-width: 0; }
+  .prospect-item .name {
+    color: var(--text); font-weight: 500; font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .prospect-item .meta {
+    color: var(--text-faint); font-size: 10.5px; margin-top: 3px;
+    line-height: 1.5;
+  }
+  .prospect-item .meta b { color: var(--text-dim); font-weight: 500; }
+  .prospect-item .roles {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px;
+  }
+  .prospect-item .role-chip {
+    font-size: 10px; padding: 1px 6px; border-radius: 9px;
+    background: var(--panel); color: var(--text-dim); border: 1px solid var(--border);
+    font-variant-numeric: tabular-nums;
+  }
+  .prospect-item .role-chip b { color: var(--text); font-weight: 600; }
 
   .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px 16px; margin-bottom: 16px; }
   .chart-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
   .chart-card .card-sub { color: var(--text-faint); font-size: 12px; margin-bottom: 14px; }
   .chart-host { position: relative; height: 380px; }
-  .chart-host.tall { height: 420px; }
+  .chart-host.tall { height: 460px; }
   .empty-chart { color: var(--text-faint); text-align: center; padding: 60px 20px; font-style: italic; }
 
   .legend-strip { display: flex; flex-wrap: wrap; gap: 14px 22px; margin-bottom: 12px; font-size: 12px; align-items: center; }
@@ -154,29 +239,53 @@
   tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: rgba(255,255,255,0.02); }
   .pill { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; background: var(--panel-2); color: var(--text-dim); }
-  .pill.m1 { background: #1a3a5c; color: #93c5fd; }
-  .pill.m2 { background: #1d3d22; color: #86efac; }
-  .pill.m3 { background: #4a3a14; color: #fbbf24; }
-  .pill.beyond { background: #3a1d3d; color: #d8a8e8; }
+  .pill.jan { background: #1a3a4a; color: #67e8f9; }
+  .pill.feb { background: #1a3548; color: #7dd3fc; }
+  .pill.mar { background: #1f1f4a; color: #a5b4fc; }
+  .pill.apr { background: #2a1a4a; color: #d8b4fe; }
+  .pill.may { background: #1a3a5c; color: #93c5fd; }
+  .pill.jun { background: #1d3d22; color: #86efac; }
+  .pill.jul { background: #4a3a14; color: #fbbf24; }
+  .pill.aug { background: #4a2814; color: #fb923c; }
+  .pill.sep { background: #4a1d3a; color: #f9a8d4; }
+  .pill.oct { background: #4a1a1a; color: #fca5a5; }
+  .pill.nov { background: #2d2554; color: #c4b5fd; }
+  .pill.dec { background: #1a3a3a; color: #5eead4; }
   .delta-pos { color: var(--pos); font-weight: 500; }
   .delta-neg { color: var(--neg); font-weight: 500; }
   .delta-zero { color: var(--text-faint); }
   .net-total-row td { border-top: 1px solid var(--border); border-bottom: none; padding-top: 12px; font-weight: 600; }
   .net-total-row td:first-child { color: var(--text-dim); text-transform: uppercase; font-size: 11px; letter-spacing: 0.05em; }
   .qbump-row td {
-    border-top: 1px dashed rgba(251, 191, 36, 0.35);
-    background: rgba(251, 191, 36, 0.04);
+    border-top: 1px dashed rgba(34, 211, 238, 0.35);
+    background: rgba(34, 211, 238, 0.05);
     padding: 9px 10px; font-size: 12px;
   }
   .qbump-row td.qbump-label {
-    color: var(--amber); font-weight: 500; font-size: 11px;
+    color: var(--cyan); font-weight: 500; font-size: 11px;
     text-transform: uppercase; letter-spacing: 0.05em;
   }
   .qbump-row td.qbump-label .qbump-hint {
     color: var(--text-faint); font-weight: 400; text-transform: none;
     letter-spacing: 0; font-size: 10px; margin-left: 4px;
   }
-  .qbump-row td.qbump-val { color: var(--amber); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .qbump-row td.qbump-val { color: var(--cyan); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* Prospect onboarding annotation row in net change table (amber) */
+  .pbump-row td {
+    border-top: 1px dashed rgba(251, 191, 36, 0.35);
+    background: rgba(251, 191, 36, 0.05);
+    padding: 9px 10px; font-size: 12px;
+  }
+  .pbump-row td.pbump-label {
+    color: var(--amber); font-weight: 500; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .pbump-row td.pbump-label .pbump-hint {
+    color: var(--text-faint); font-weight: 400; text-transform: none;
+    letter-spacing: 0; font-size: 10px; margin-left: 4px;
+  }
+  .pbump-row td.pbump-val { color: var(--amber); font-weight: 500; font-variant-numeric: tabular-nums; }
   .empty { color: var(--text-faint); text-align: center; padding: 20px; font-style: italic; }
   .balance-tag { font-weight: 600; font-size: 11px; margin-left: 6px; }
   .balance-ok { color: var(--pos); }
@@ -264,13 +373,13 @@
   }
 
   .portfolio-table-wrap {
-    max-height: 560px; overflow-y: auto; overflow-x: auto;
+    max-height: 760px; overflow-y: auto; overflow-x: auto;
     border: 1px solid var(--border); border-radius: 6px;
     margin-top: 6px;
   }
   .portfolio-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .portfolio-table thead th {
-    position: sticky; top: 0; z-index: 2;
+    position: sticky; top: 0; z-index: 3;
     background: var(--panel-2); border-bottom: 1px solid var(--border);
     padding: 9px 10px; text-align: left;
     color: var(--text-dim); font-weight: 500; font-size: 11px;
@@ -353,6 +462,7 @@
     padding: 11px 16px;
     border-top: 2px solid #3b82f6;
     border-bottom: 1px solid var(--border);
+    position: sticky; top: 30px; z-index: 2;
   }
   .portfolio-table tr.section-header-row td > div {
     display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
@@ -379,6 +489,7 @@
     padding: 11px 16px;
     border-top: 2px solid #f87171;
     border-bottom: 1px solid var(--border);
+    position: sticky; top: 30px; z-index: 2;
   }
   .portfolio-table tr.departing-header-row td > div {
     display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
@@ -420,6 +531,42 @@
     0%   { background: rgba(251, 191, 36, 0.35); }
     100% { background: transparent; }
   }
+  #trans-table tr.prospect-row td {
+    background: rgba(251, 191, 36, 0.04);
+    border-top: 1px solid rgba(251, 191, 36, 0.18);
+  }
+  #trans-table tr.prospect-row:hover td { background: rgba(251, 191, 36, 0.07); }
+  .prospect-badge {
+    display: inline-block; margin-left: 6px;
+    padding: 1px 7px; border-radius: 9px;
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: rgba(251, 191, 36, 0.14);
+    color: var(--amber);
+    border: 1px solid rgba(251, 191, 36, 0.45);
+  }
+  .prospect-meta { color: var(--text-faint); font-size: 10.5px; margin-left: 6px; }
+
+  /* Prospect rows in portfolio table */
+  .portfolio-table tr.prospects-section-header td {
+    background: linear-gradient(to right, #3a2d14, #2a2415);
+    padding: 11px 16px;
+    border-top: 2px solid var(--amber);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 30px; z-index: 2;
+  }
+  .portfolio-table tr.prospects-section-header td > div {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .prospects-section-label { color: var(--amber); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .prospects-section-sub   { color: var(--text-faint); font-size: 11px; font-style: italic; }
+  .portfolio-table tr.prospect-portfolio-row td {
+    background: rgba(251, 191, 36, 0.04);
+    border-bottom: 1px solid rgba(251, 191, 36, 0.18);
+  }
+  .portfolio-table tr.prospect-portfolio-row:hover td { background: rgba(251, 191, 36, 0.07); }
+  .prospect-marker { color: var(--amber); font-size: 14px; }
+  .prospect-onb-cell { color: var(--amber); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -484,36 +631,47 @@
           <div class="custom-list" id="custom-list"></div>
         </div>
       </div>
+      <div class="prospects-inline" id="prospects-inline">
+        <button class="prospects-btn" id="prospects-btn" type="button" title="Layer prospect onboarding &amp; recurring workload into the projections">
+          <span class="prospects-icon">◐</span>
+          <span class="prospects-label">Prospects</span>
+          <span class="prospects-count" id="prospects-count">0 / 0</span>
+        </button>
+        <div class="prospects-panel" id="prospects-panel">
+          <div class="prospects-panel-head">
+            <div class="prospects-panel-title">Layer prospects</div>
+            <div class="prospects-panel-sub">Off by default. Toggle which prospects to include in the projections — onboarding hours pro-rated daily across kickoff → due, recurring starts on the recurring-start date.</div>
+          </div>
+          <div class="prospects-actions">
+            <button id="prospects-all" type="button">Select all</button>
+            <button id="prospects-clear" type="button">Clear</button>
+          </div>
+          <div class="prospects-list" id="prospects-list"></div>
+        </div>
+      </div>
     </div>
 
     <div class="chart-card">
-      <h3 id="workload-title">Controllers — Workload</h3>
-      <div class="card-sub">Clients (blue) and closes (green) by month, three side-by-side bars per person. Amber cap on closes in trigger months (Apr / Jul / Oct / Jan) is the quarterly close burden stacked on top of routine monthly closes.</div>
+      <h3 id="combined-title">Controllers — Workload &amp; Hours</h3>
+      <div class="card-sub">Per person: three close bars (left axis) grouped left, three hour bars (right axis) grouped right. Each close bar stacks routine closes (green) + quarterly bump (cyan) + prospect closes (amber, when prospects on); a gray diagonal-stripe overlay sits at the height of the client count for that month. Each hour bar stacks budget (blue) + quarterly cap (cyan) + prospect recurring (violet) + prospect onboarding (amber, when prospects on). Green dots = actual hours, one per month per person.</div>
       <div class="legend-strip">
-        <div class="legend-group"><span class="lbl">Clients</span>
-          <span class="swatch-row"><span class="swatch" style="background:var(--blue-1)"></span><span class="swatch" style="background:var(--blue-2)"></span><span class="swatch" style="background:var(--blue-3)"></span></span></div>
-        <div class="legend-group"><span class="lbl">Monthly closes</span>
+        <div class="legend-group"><span class="lbl">Closes</span>
           <span class="swatch-row"><span class="swatch" style="background:var(--green-1)"></span><span class="swatch" style="background:var(--green-2)"></span><span class="swatch" style="background:var(--green-3)"></span></span></div>
+        <div class="legend-group"><span class="lbl">Clients (overlay)</span>
+          <span class="swatch-row"><span class="swatch" id="legend-clients" style="background:repeating-linear-gradient(135deg, transparent 0px, transparent 3px, rgba(220,220,220,0.6) 3px, rgba(220,220,220,0.6) 4px); border:1px solid rgba(220,220,220,0.4)"></span></span></div>
+        <div class="legend-group"><span class="lbl">Budget hrs</span>
+          <span class="swatch-row"><span class="swatch" style="background:var(--blue-1)"></span><span class="swatch" style="background:var(--blue-2)"></span><span class="swatch" style="background:var(--blue-3)"></span></span></div>
         <div class="legend-group"><span class="lbl">Quarterly add-on</span>
+          <span class="swatch-row"><span class="swatch" style="background:var(--cyan)"></span></span></div>
+        <div class="legend-group" id="legend-prospect-recur" style="display:none"><span class="lbl">Prospect recurring</span>
+          <span class="swatch-row"><span class="swatch" style="background:var(--violet)"></span></span></div>
+        <div class="legend-group" id="legend-prospect-onboard" style="display:none"><span class="lbl">Prospect onboarding</span>
           <span class="swatch-row"><span class="swatch" style="background:var(--amber)"></span></span></div>
+        <div class="legend-group"><span class="lbl">Actual hrs (dots)</span>
+          <span class="swatch-row"><span class="swatch dot" style="background:var(--green-1)"></span><span class="swatch dot" style="background:var(--green-2)"></span><span class="swatch dot" style="background:var(--green-3)"></span></span></div>
         <div class="month-labels" style="margin-left:auto" id="month-labels-1"></div>
       </div>
-      <div class="chart-host"><canvas id="workloadChart"></canvas><div id="workload-empty"></div></div>
-    </div>
-
-    <div class="chart-card">
-      <h3 id="hours-title">Controllers — Hours: budget (bars) vs actual (dots)</h3>
-      <div class="card-sub">Budget hours (blue bars, with amber quarterly cap) is the plan. Actual hours (green dots, one per month, connected per person) projects each client's trailing actual average across the changing portfolio. Where dots sit above the bar tops, that person is structurally over-capacity. Each person has their own 3-dot mini-line; dots are never connected across people.</div>
-      <div class="legend-strip">
-        <div class="legend-group"><span class="lbl">Budget</span>
-          <span class="swatch-row"><span class="swatch" style="background:var(--blue-1)"></span><span class="swatch" style="background:var(--blue-2)"></span><span class="swatch" style="background:var(--blue-3)"></span></span></div>
-        <div class="legend-group"><span class="lbl">Quarterly add-on</span>
-          <span class="swatch-row"><span class="swatch" style="background:var(--amber)"></span></span></div>
-        <div class="legend-group"><span class="lbl">Actual (dots)</span>
-          <span class="swatch-row"><span class="swatch dot" style="background:var(--green-1)"></span><span class="swatch dot" style="background:var(--green-2)"></span><span class="swatch dot" style="background:var(--green-3)"></span></span></div>
-        <div class="month-labels" style="margin-left:auto" id="month-labels-2"></div>
-      </div>
-      <div class="chart-host tall"><canvas id="hoursChart"></canvas><div id="hours-empty"></div></div>
+      <div class="chart-host tall"><canvas id="combinedChart"></canvas><div id="combined-empty"></div></div>
     </div>
 
     <div class="panel" id="portfolio-panel">
@@ -546,7 +704,7 @@
     </div>
 
     <div class="panel">
-      <h3 id="trans-title">Scheduled transitions</h3>
+      <h3 id="trans-title">Scheduled changes</h3>
       <div class="card-sub" id="trans-sub"></div>
       <div id="trans-table-wrap"></div>
     </div>
@@ -845,6 +1003,13 @@ const PAL = {
   blue:  ['#1d4ed8', '#3b82f6', '#93c5fd'],
   green: ['#15803d', '#22c55e', '#86efac'],
   amber: '#fbbf24',
+  cyan:  '#22d3ee',
+  // Prospect recurring: same hue family as the month's blue but lighter / striped feel via reduced alpha
+  prospectRecur: ['rgba(29, 78, 216, 0.45)', 'rgba(59, 130, 246, 0.45)', 'rgba(147, 197, 253, 0.45)'],
+  // Prospect onboarding: amber across all months (visually flags "temporary")
+  prospectOnboard: '#fbbf24',
+  // Prospect clients (workload chart): lighter amber tone
+  prospectClients: 'rgba(251, 191, 36, 0.55)',
 };
 
 // =========================================================================
@@ -1001,6 +1166,8 @@ function aggregate(rows, months) {
   const active = rows.filter(r => (r['Status'] || '').trim() === 'Active' && FREQ_MQ(r['Frequency']));
   // For full portfolio table: all active clients regardless of frequency
   const allActive = rows.filter(r => (r['Status'] || '').trim() === 'Active');
+  // For prospects: separate handling; off by default in the UI
+  const prospectRows = rows.filter(r => (r['Status'] || '').trim() === 'Prospect');
 
   function blank() {
     return {
@@ -1183,6 +1350,9 @@ function aggregate(rows, months) {
   const BK_clients = buildClientsForRole(allActive, 'BK');
   const AN_clients = buildClientsForRole(allActive, 'Analyst');
 
+  // Build prospects (cross-role objects with per-month contributions for CR/BK/AN/CFO)
+  const prospects = buildProspects(prospectRows, months);
+
   return {
     months: months.map(m => m.label),
     monthStarts: months.map(m => m.start),
@@ -1202,7 +1372,141 @@ function aggregate(rows, months) {
       BK:      { title: 'Bookkeepers',  people: BK.people, transitions: BK.transitions, net_totals: BK.net_totals, qbump_totals: BK.qbump_totals, clients: BK_clients },
       Analyst: { title: 'Analysts',     people: AN.people, transitions: AN.transitions, net_totals: AN.net_totals, qbump_totals: AN.qbump_totals, clients: AN_clients },
     },
+    prospects: prospects,
   };
+}
+
+// =========================================================================
+// PROSPECTS
+// =========================================================================
+function daysBetweenInclusive(d1, d2) {
+  // Inclusive day count between two Date objects (e.g., May 25 → May 31 = 7)
+  const ms = 24 * 60 * 60 * 1000;
+  return Math.round((d2.getTime() - d1.getTime()) / ms) + 1;
+}
+
+function buildProspects(prospectRows, months) {
+  const out = [];
+  for (const r of prospectRows) {
+    const client = r['Client'];
+    if (!client) continue;
+    const kickoff   = parseDate(r['Kickoff Date']);
+    const due       = parseDate(r['Onboarding Due Date']);
+    const recStart  = parseDate(r['Recurring Start Date']);
+
+    const contributions = {
+      CR:      computeProspectRoleContrib(r, 'CR', kickoff, due, recStart, months),
+      BK:      computeProspectRoleContrib(r, 'BK', kickoff, due, recStart, months),
+      Analyst: computeProspectRoleContrib(r, 'Analyst', kickoff, due, recStart, months),
+      CFO:     computeProspectRoleContrib(r, 'CFO', kickoff, due, recStart, months),
+    };
+
+    // A prospect is "skippable" if no role has any contribution in any month — e.g., all role fields empty
+    const hasAny = ['CR','BK','Analyst','CFO'].some(rk => {
+      const c = contributions[rk];
+      return c.onboardHours.some(h => h > 0) || c.recurHours.some(h => h > 0);
+    });
+    if (!hasAny) continue;
+
+    out.push({
+      client,
+      status: (r['Status'] || '').trim(),
+      kickoff_iso: dateToISO(kickoff),
+      due_iso: dateToISO(due),
+      recur_start_iso: dateToISO(recStart),
+      frequency: (r['Frequency'] || '').trim() || null,
+      contributions,
+    });
+  }
+  // Sort: prospects with kickoff in window first, then by kickoff date
+  out.sort((a, b) => {
+    const ka = a.kickoff_iso || '9999';
+    const kb = b.kickoff_iso || '9999';
+    if (ka !== kb) return ka < kb ? -1 : 1;
+    return a.client.toLowerCase().localeCompare(b.client.toLowerCase());
+  });
+  return out;
+}
+
+function computeProspectRoleContrib(row, roleKey, kickoff, due, recStart, months) {
+  let onboardField, hoursField, recurField, recurHrField;
+  if (roleKey === 'CR') {
+    onboardField = 'Onboarding CR'; hoursField = 'Onboarding Hrs - CR';
+    recurField = 'CR'; recurHrField = 'CR Budgeted Hours';
+  } else if (roleKey === 'BK') {
+    onboardField = 'Onboarding BK'; hoursField = 'Onboarding Hrs - BK';
+    recurField = 'BK'; recurHrField = 'BK Budget Hours';
+  } else if (roleKey === 'Analyst') {
+    onboardField = 'Onboarding AN'; hoursField = 'Onboarding Hrs - AN';
+    recurField = 'Analyst'; recurHrField = 'Analyst Budget Hours';
+  } else { // CFO
+    onboardField = 'Onboarding CFO'; hoursField = 'Onboarding Hrs - CFO';
+    recurField = 'CFO'; recurHrField = 'CFO Budget Hours';
+  }
+
+  const onboardPerson = (row[onboardField] || '').trim();
+  const totalOnboardHours = numOrNull(row[hoursField]) || 0;
+  const recurPerson = (row[recurField] || '').trim();
+  const recurHoursPerMonth = numOrNull(row[recurHrField]) || 0;
+
+  // Daily rate for onboarding (pro-rata across kickoff → due, inclusive)
+  let dailyRate = 0;
+  let totalOnboardDays = 0;
+  if (kickoff && due && totalOnboardHours > 0 && due.getTime() >= kickoff.getTime()) {
+    totalOnboardDays = daysBetweenInclusive(kickoff, due);
+    if (totalOnboardDays > 0) dailyRate = totalOnboardHours / totalOnboardDays;
+  }
+
+  const onboardHours = [0, 0, 0];
+  const recurHours = [0, 0, 0];
+  const presentAsClient = [false, false, false]; // whether this prospect counts as +1 client this month
+
+  for (let i = 0; i < 3; i++) {
+    const monthStart = months[i].start;
+    const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0); // last day
+
+    // Onboarding contribution: days in [max(kickoff, monthStart), min(due, monthEnd)]
+    if (dailyRate > 0 && kickoff && due) {
+      const overlapStartMs = Math.max(monthStart.getTime(), kickoff.getTime());
+      const overlapEndMs = Math.min(monthEnd.getTime(), due.getTime());
+      if (overlapStartMs <= overlapEndMs) {
+        const overlapStart = new Date(overlapStartMs);
+        const overlapEnd = new Date(overlapEndMs);
+        const days = daysBetweenInclusive(overlapStart, overlapEnd);
+        onboardHours[i] = Math.round(days * dailyRate * 100) / 100;
+      }
+    }
+
+    // Recurring contribution: full monthly hours if recStart <= monthEnd (i.e., recurring kicked in by this month)
+    if (recStart && recHasStartedBy(recStart, monthEnd) && recurHoursPerMonth > 0) {
+      recurHours[i] = recurHoursPerMonth;
+    }
+
+    if (onboardHours[i] > 0 || recurHours[i] > 0) {
+      presentAsClient[i] = true;
+    }
+  }
+
+  // Resolve assignees: empty name with hours present = open seat
+  const placeholderKey = roleKey === 'Analyst' ? 'Analyst' : roleKey;
+  const onboardAssignee = onboardPerson || (totalOnboardHours > 0 ? OPEN_SEAT_PLACEHOLDER[placeholderKey] : null);
+  const recurAssignee = recurPerson || (recurHoursPerMonth > 0 ? OPEN_SEAT_PLACEHOLDER[placeholderKey] : null);
+
+  return {
+    onboardAssignee,
+    recurAssignee,
+    onboardHours,
+    recurHours,
+    presentAsClient,
+    totalOnboardHours,
+    recurHoursPerMonth,
+    onboardDailyRate: Math.round(dailyRate * 1000) / 1000,
+    onboardDays: totalOnboardDays,
+  };
+}
+
+function recHasStartedBy(recStart, refDate) {
+  return recStart.getTime() <= refDate.getTime();
 }
 
 // =========================================================================
@@ -1351,6 +1655,7 @@ let state = {
   portfolioSort: { col: 'client', dir: 'asc' },
   portfolioSearch: '',
   portfolioExpanded: new Set(),
+  prospectsEnabled: new Set(), // names of prospects currently layered into the view (off by default)
 };
 
 function showStatus(kind, message, detail) {
@@ -1450,7 +1755,6 @@ function onDataLoaded(isManual) {
 
   const monthLabel = DATA.months.map(m => '<b>' + m + '</b>').join(' &nbsp;\u2192&nbsp; ');
   document.getElementById('month-labels-1').innerHTML = monthLabel;
-  document.getElementById('month-labels-2').innerHTML = monthLabel;
 
   // Populate net-window dropdown labels
   const winSel = document.getElementById('net-window');
@@ -1467,15 +1771,14 @@ function onDataLoaded(isManual) {
     month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true
   });
   if (DATA_SOURCE === 'live') {
-    stamp.innerHTML = `<span style="color:var(--pos);font-weight:600">● Live</span> &middot; refreshed <b style="color:var(--text-dim)">${timeStr}</b>`;
+    stamp.innerHTML = `<span style="color:var(--pos);font-weight:600">● Live</span> &middot; <b style="color:var(--text-dim)">${timeStr}</b>`;
   } else if (DATA_SOURCE === 'uploaded') {
     const fn = UPLOADED_FILENAME ? escapeHtml(UPLOADED_FILENAME) : 'uploaded CSV';
-    stamp.innerHTML = `<span style="color:var(--pos);font-weight:600">● Uploaded</span> &middot; <b style="color:var(--text-dim)">${fn}</b> at <b style="color:var(--text-dim)">${timeStr}</b>`;
+    stamp.innerHTML = `<span style="color:var(--pos);font-weight:600" title="Uploaded ${fn}">● Uploaded</span> &middot; <b style="color:var(--text-dim)">${timeStr}</b>`;
   } else if (DATA_SOURCE === 'bundled') {
-    const errNote = LAST_FETCH_ERROR ? ` (live fetch: ${escapeHtml(LAST_FETCH_ERROR)})` : '';
-    stamp.innerHTML = `<span style="color:var(--amber);font-weight:600" title="Live fetch failed; using bundled snapshot.">● Bundled snapshot</span> &middot; loaded <b style="color:var(--text-dim)">${timeStr}</b><div style="color:var(--text-faint);font-size:10px;margin-top:2px">${errNote}</div>`;
+    stamp.innerHTML = `<span style="color:var(--amber);font-weight:600" title="Live fetch failed; using bundled snapshot.${LAST_FETCH_ERROR ? ' (' + LAST_FETCH_ERROR + ')' : ''}">● Bundled</span> &middot; <b style="color:var(--text-dim)">${timeStr}</b>`;
   } else {
-    stamp.innerHTML = `Last refreshed <b style="color:var(--text-dim)">${timeStr}</b>`;
+    stamp.innerHTML = `<b style="color:var(--text-dim)">${timeStr}</b>`;
   }
 
   // If the current role's people changed (e.g. someone removed), prune custom selections
@@ -1484,7 +1787,14 @@ function onDataLoaded(isManual) {
     if (!roleRawNames.has(n)) state.customSelected.delete(n);
   }
 
+  // Prune prospect selections to ones still in the data
+  const currentProspectNames = new Set((DATA.prospects || []).map(p => p.client));
+  for (const n of [...state.prospectsEnabled]) {
+    if (!currentProspectNames.has(n)) state.prospectsEnabled.delete(n);
+  }
+
   buildKpis();
+  buildProspectsPanel();
   renderAll();
 
   // Update source banner
@@ -1538,11 +1848,37 @@ function buildKpis() {
   const bk = DATA.role_summary.BK;
   const an = DATA.role_summary.Analyst;
   const totalTrans = DATA.roles.CR.transitions.length + DATA.roles.BK.transitions.length + DATA.roles.Analyst.transitions.length;
+
+  // Per-role prospect uplift for the current/first month (M1)
+  function prospectUplift(roleKey) {
+    if (state.prospectsEnabled.size === 0) return 0;
+    let n = 0;
+    for (const p of (DATA.prospects || [])) {
+      if (!state.prospectsEnabled.has(p.client)) continue;
+      const c = p.contributions[roleKey];
+      if (c && c.presentAsClient[0]) n++;
+    }
+    return n;
+  }
+  const pCR = prospectUplift('CR');
+  const pBK = prospectUplift('BK');
+  const pAN = prospectUplift('Analyst');
+  const totalProspects = (DATA.prospects || []).length;
+  const activeProspects = state.prospectsEnabled.size;
+
+  function sub(roleClients, openClients, pUplift) {
+    const parts = [];
+    if (openClients > 0) parts.push(`incl. ${openClients} open seat`);
+    else parts.push('fully staffed');
+    if (pUplift > 0) parts.push(`+${pUplift} prospect`);
+    return parts.join(' · ');
+  }
+
   const cards = [
-    {label: 'Controller assignments', value: cr.current_clients, sub: cr.open_clients > 0 ? `incl. ${cr.open_clients} open seat` : 'fully staffed'},
-    {label: 'Bookkeeper assignments', value: bk.current_clients, sub: bk.open_clients > 0 ? `incl. ${bk.open_clients} open seat` : 'fully staffed'},
-    {label: 'Analyst assignments',    value: an.current_clients, sub: an.open_clients > 0 ? `incl. ${an.open_clients} open seat` : 'fully staffed'},
-    {label: 'Scheduled transitions',  value: totalTrans, sub: 'across all roles, next 90 days'},
+    {label: 'Controller assignments', value: cr.current_clients + pCR, sub: sub(cr.current_clients, cr.open_clients, pCR)},
+    {label: 'Bookkeeper assignments', value: bk.current_clients + pBK, sub: sub(bk.current_clients, bk.open_clients, pBK)},
+    {label: 'Analyst assignments',    value: an.current_clients + pAN, sub: sub(an.current_clients, an.open_clients, pAN)},
+    {label: 'Scheduled changes',      value: totalTrans + activeProspects, sub: activeProspects > 0 ? `${totalTrans} transitions + ${activeProspects} prospect${activeProspects===1?'':'s'} layered` : `transitions across all roles${totalProspects > 0 ? ` · ${totalProspects} prospects available` : ''}`},
   ];
   document.getElementById('kpi-row').innerHTML = cards
     .map(k => `<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-value">${k.value}</div><div class="kpi-sub">${k.sub}</div></div>`)
@@ -1557,16 +1893,16 @@ function buildCustomPanel() {
   const html = items.map(p => {
     const checked = state.customSelected.has(p.raw_name) ? 'checked' : '';
     const tagLabel = p.tag === 'head' ? 'Head' : p.tag === 'open' ? 'Open' : '';
-    return `<label>
+    return `<div class="custom-item">
       <input type="checkbox" data-name="${escapeHtml(p.raw_name)}" ${checked}>
-      <span class="name-text">${escapeHtml(formatLabel(p))}</span>
+      <span class="name-text" data-only-for="${escapeHtml(p.raw_name)}" title="Click name to show only this person">${escapeHtml(formatLabel(p))}</span>
       ${tagLabel ? `<span class="person-tag">${tagLabel}</span>` : ''}
-      <button type="button" class="only-btn" data-only-for="${escapeHtml(p.raw_name)}" title="Show only ${escapeHtml(formatLabel(p))}">Only</button>
-    </label>`;
+    </div>`;
   }).join('');
   document.getElementById('custom-list').innerHTML = html || '<div class="empty" style="grid-column:1/-1">No matches</div>';
 
   document.querySelectorAll('#custom-list input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('click', e => e.stopPropagation());
     cb.addEventListener('change', () => {
       const name = cb.dataset.name;
       if (cb.checked) state.customSelected.add(name);
@@ -1576,11 +1912,12 @@ function buildCustomPanel() {
     });
   });
 
-  document.querySelectorAll('#custom-list .only-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+  // Click name → only-select (clear others, add this one)
+  document.querySelectorAll('#custom-list .name-text').forEach(span => {
+    span.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const name = btn.dataset.onlyFor;
+      const name = span.dataset.onlyFor;
       state.customSelected.clear();
       state.customSelected.add(name);
       buildCustomPanel();
@@ -1595,118 +1932,245 @@ function updateChipCustomLabel() {
   document.getElementById('chip-custom').textContent = n > 0 ? `Custom: ${n} selected\u2026` : 'Custom\u2026';
 }
 
-// ===== Charts =====
-let workloadChart = null, hoursChart = null;
+// =========================================================================
+// PROSPECTS LAYER  (UI + per-person aggregation for currently-enabled prospects)
+// =========================================================================
+// Returns Map<raw_name, { onboardHours:[3], recurHours:[3], clients:[3], items:[{client,role:'onboard'|'recur',hours[3]}] }>
+function getProspectContribForRole(roleKey) {
+  const result = new Map();
+  if (!DATA || !DATA.prospects || state.prospectsEnabled.size === 0) return result;
+  for (const p of DATA.prospects) {
+    if (!state.prospectsEnabled.has(p.client)) continue;
+    const c = p.contributions[roleKey];
+    if (!c) continue;
 
-function buildWorkload() {
-  const people = getFilteredPeople();
-  const emptyDiv = document.getElementById('workload-empty');
-  const canvas = document.getElementById('workloadChart');
-  if (people.length === 0) {
-    if (workloadChart) { workloadChart.destroy(); workloadChart = null; }
-    canvas.style.display = 'none';
-    emptyDiv.className = 'empty-chart';
-    emptyDiv.textContent = 'No team members match the current filter.';
-    return;
-  }
-  canvas.style.display = '';
-  emptyDiv.textContent = '';
-  emptyDiv.className = '';
-
-  const labels = people.map(formatLabel);
-  const datasets = [
-    { label: 'Clients ' + DATA.months[0], data: people.map(p => p.data.clients[0]), backgroundColor: PAL.blue[0],  stack: 'clients_0', borderRadius: 2 },
-    { label: 'Clients ' + DATA.months[1], data: people.map(p => p.data.clients[1]), backgroundColor: PAL.blue[1],  stack: 'clients_1', borderRadius: 2 },
-    { label: 'Clients ' + DATA.months[2], data: people.map(p => p.data.clients[2]), backgroundColor: PAL.blue[2],  stack: 'clients_2', borderRadius: 2 },
-    { label: 'Closes ' + DATA.months[0],  data: people.map(p => p.data.closes_regular[0]), backgroundColor: PAL.green[0], stack: 'closes_0', borderRadius: 2 },
-    { label: 'Quarterly closes ' + DATA.months[0], data: people.map(p => p.data.closes_extra[0]), backgroundColor: PAL.amber, stack: 'closes_0', borderRadius: 2 },
-    { label: 'Closes ' + DATA.months[1],  data: people.map(p => p.data.closes_regular[1]), backgroundColor: PAL.green[1], stack: 'closes_1', borderRadius: 2 },
-    { label: 'Quarterly closes ' + DATA.months[1], data: people.map(p => p.data.closes_extra[1]), backgroundColor: PAL.amber, stack: 'closes_1', borderRadius: 2 },
-    { label: 'Closes ' + DATA.months[2],  data: people.map(p => p.data.closes_regular[2]), backgroundColor: PAL.green[2], stack: 'closes_2', borderRadius: 2 },
-    { label: 'Quarterly closes ' + DATA.months[2], data: people.map(p => p.data.closes_extra[2]), backgroundColor: PAL.amber, stack: 'closes_2', borderRadius: 2 },
-  ];
-  if (workloadChart) workloadChart.destroy();
-  workloadChart = new Chart(canvas.getContext('2d'), {
-    type: 'bar',
-    data: { labels, datasets },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1f1f1f', borderColor: '#444', borderWidth: 1,
-          titleColor: '#f0f0f0', bodyColor: '#d0d0d0', padding: 10,
-          filter: (item) => item.parsed.y > 0,
-          callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#cfcfcf', font: { size: 12, weight: '500' }, autoSkip: false, maxRotation: 35, minRotation: 0 } },
-        y: { beginAtZero: true, title: { display: true, text: 'Clients / Closes (count)', color: '#9a9a9a', font: { size: 11 } },
-             grid: { color: '#2e2e2e' }, ticks: { color: '#9a9a9a' } },
-      }
+    // Onboarding contribution
+    if (c.onboardAssignee && c.onboardHours.some(h => h > 0)) {
+      const bucket = result.get(c.onboardAssignee) || { onboardHours:[0,0,0], recurHours:[0,0,0], clients:[0,0,0], onboardItems:[], recurItems:[] };
+      for (let i = 0; i < 3; i++) bucket.onboardHours[i] += c.onboardHours[i];
+      bucket.onboardItems.push({ client: p.client, hours: c.onboardHours.slice() });
+      result.set(c.onboardAssignee, bucket);
     }
-  });
-  document.getElementById('workload-title').textContent = DATA.roles[state.roleKey].title + ' \u2014 Workload';
+
+    // Recurring contribution + client count
+    if (c.recurAssignee && (c.recurHours.some(h => h > 0) || c.presentAsClient.some(b => b))) {
+      const bucket = result.get(c.recurAssignee) || { onboardHours:[0,0,0], recurHours:[0,0,0], clients:[0,0,0], onboardItems:[], recurItems:[] };
+      for (let i = 0; i < 3; i++) {
+        bucket.recurHours[i] += c.recurHours[i];
+        if (c.presentAsClient[i]) bucket.clients[i] += 1;
+      }
+      bucket.recurItems.push({ client: p.client, hours: c.recurHours.slice(), present: c.presentAsClient.slice() });
+      result.set(c.recurAssignee, bucket);
+    }
+  }
+  // Round
+  for (const [k, v] of result.entries()) {
+    for (let i = 0; i < 3; i++) {
+      v.onboardHours[i] = Math.round(v.onboardHours[i] * 100) / 100;
+      v.recurHours[i] = Math.round(v.recurHours[i] * 100) / 100;
+    }
+  }
+  return result;
 }
 
-// Plugin: per-person 3-dot mini-line over budget bars
+function shortDateLocal(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso + 'T00:00:00');
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function buildProspectsPanel() {
+  const list = document.getElementById('prospects-list');
+  const prospects = (DATA && DATA.prospects) || [];
+
+  if (prospects.length === 0) {
+    list.innerHTML = '<div class="empty" style="padding:12px;text-align:center;">No prospects in the current data.</div>';
+    updateProspectsButton();
+    return;
+  }
+
+  const html = prospects.map(p => {
+    const active = state.prospectsEnabled.has(p.client) ? 'active' : '';
+    const checked = state.prospectsEnabled.has(p.client) ? 'checked' : '';
+    const kickoff = shortDateLocal(p.kickoff_iso);
+    const due = shortDateLocal(p.due_iso);
+    const recur = shortDateLocal(p.recur_start_iso);
+
+    const roleChips = [];
+    for (const role of ['CR','BK','Analyst']) {
+      const c = p.contributions[role];
+      if (!c || (!c.onboardAssignee && !c.recurAssignee)) continue;
+      const onb = c.totalOnboardHours;
+      const rec = c.recurHoursPerMonth;
+      const who = displayPerson(c.recurAssignee || c.onboardAssignee) || '?';
+      const roleLabel = role === 'CR' ? 'CR' : role === 'BK' ? 'BK' : 'AN';
+      const hourParts = [];
+      if (onb > 0) hourParts.push(`<b>${onb}h</b> onb`);
+      if (rec > 0) hourParts.push(`<b>${rec}h</b>/mo`);
+      roleChips.push(`<span class="role-chip">${roleLabel} → ${escapeHtml(who)} · ${hourParts.join(' · ')}</span>`);
+    }
+
+    return `<label class="prospect-item ${active}" data-client="${escapeHtml(p.client)}">
+      <input type="checkbox" data-client="${escapeHtml(p.client)}" ${checked}>
+      <div class="body">
+        <div class="name">${escapeHtml(p.client)}</div>
+        <div class="meta">Kickoff <b>${kickoff}</b> · Due <b>${due}</b> · Recurring start <b>${recur}</b>${p.frequency ? ` · ${escapeHtml(p.frequency)}` : ''}</div>
+        <div class="roles">${roleChips.join('')}</div>
+      </div>
+    </label>`;
+  }).join('');
+
+  list.innerHTML = html;
+
+  list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const name = cb.dataset.client;
+      if (cb.checked) state.prospectsEnabled.add(name);
+      else state.prospectsEnabled.delete(name);
+      const label = cb.closest('.prospect-item');
+      if (label) label.classList.toggle('active', cb.checked);
+      updateProspectsButton();
+      renderAll();
+    });
+  });
+
+  updateProspectsButton();
+}
+
+function updateProspectsButton() {
+  const btn = document.getElementById('prospects-btn');
+  const countEl = document.getElementById('prospects-count');
+  const n = state.prospectsEnabled.size;
+  const total = (DATA && DATA.prospects) ? DATA.prospects.length : 0;
+  countEl.textContent = `${n} / ${total}`;
+  btn.classList.toggle('active', n > 0);
+
+  // Toggle legend swatches' visibility
+  const legendRecur = document.getElementById('legend-prospect-recur');
+  const legendOnboard = document.getElementById('legend-prospect-onboard');
+  if (legendRecur)   legendRecur.style.display   = n > 0 ? '' : 'none';
+  if (legendOnboard) legendOnboard.style.display = n > 0 ? '' : 'none';
+}
+
+// ===== Charts =====
+let combinedChart = null;
+
+// Canvas pattern for the client overlay — transparent base + subtle gray diagonal stripes
+function makeGrayStripePattern(ctx) {
+  const tile = document.createElement('canvas');
+  tile.width = 8; tile.height = 8;
+  const tctx = tile.getContext('2d');
+  // Transparent base
+  tctx.clearRect(0, 0, 8, 8);
+  tctx.strokeStyle = 'rgba(220, 220, 220, 0.55)';
+  tctx.lineWidth = 1.2;
+  tctx.beginPath();
+  tctx.moveTo(-2, 10); tctx.lineTo(10, -2);
+  tctx.moveTo(-2, 4);  tctx.lineTo(4,  -2);
+  tctx.moveTo(4, 10);  tctx.lineTo(10, 4);
+  tctx.stroke();
+  return ctx.createPattern(tile, 'repeat');
+}
+
+// Plugin: per-person 3-dot mini-line drawn over the hours bars (right axis),
+// plus a transparent gray-stripe overlay drawn over the close bars showing client count.
 const actualOverlayPlugin = {
   id: 'actualOverlay',
   afterDatasetsDraw(chart, args, opts) {
-    if (!opts || !opts.actualData) return;
+    if (!opts) return;
     const ctx = chart.ctx;
-    const data = opts.actualData;
-    const budgetIdx = opts.budgetDatasetIndices || [0, 2, 4];
-    const colors = opts.colors || ['#15803d', '#22c55e', '#86efac'];
-    const yScale = chart.scales.y;
-    const numPeople = chart.data.labels.length;
 
-    for (let i = 0; i < numPeople; i++) {
-      const dots = [];
-      for (let m = 0; m < 3; m++) {
-        const meta = chart.getDatasetMeta(budgetIdx[m]);
-        if (!meta || !meta.data || !meta.data[i]) continue;
-        const bar = meta.data[i];
-        const v = data[i][m];
-        const y = yScale.getPixelForValue(v);
-        dots.push({ x: bar.x, y, color: colors[m], value: v });
+    // === Client overlay (gray stripes inside each close bar) ===
+    const clientOverlay = opts.clientOverlay;
+    if (clientOverlay && clientOverlay.clientData) {
+      const closeBaseIdx = clientOverlay.closeBaseIndices;  // [m1_idx, m2_idx, m3_idx] indices of base close datasets
+      const yScale = chart.scales[clientOverlay.yScaleId || 'y'];
+      const pattern = makeGrayStripePattern(ctx);
+      const data = clientOverlay.clientData;
+      const numPeople = chart.data.labels.length;
+      for (let i = 0; i < numPeople; i++) {
+        for (let m = 0; m < 3; m++) {
+          const v = data[i][m];
+          if (v <= 0) continue;
+          const meta = chart.getDatasetMeta(closeBaseIdx[m]);
+          if (!meta || !meta.data || !meta.data[i]) continue;
+          const bar = meta.data[i];
+          const x = bar.x - bar.width / 2;
+          const yTop = yScale.getPixelForValue(v);
+          const yBottom = yScale.getPixelForValue(0);
+          const h = yBottom - yTop;
+          if (h <= 0) continue;
+          ctx.save();
+          ctx.fillStyle = pattern;
+          ctx.fillRect(x, yTop, bar.width, h);
+          // Optional thin top border so the stripe "height = client count" is readable
+          ctx.strokeStyle = 'rgba(220, 220, 220, 0.85)';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(x, yTop);
+          ctx.lineTo(x + bar.width, yTop);
+          ctx.stroke();
+          ctx.restore();
+        }
       }
-      if (dots.length < 1) continue;
+    }
 
-      if (dots.length >= 2) {
-        ctx.save();
-        ctx.strokeStyle = 'rgba(180, 180, 180, 0.55)';
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(dots[0].x, dots[0].y);
-        for (let j = 1; j < dots.length; j++) ctx.lineTo(dots[j].x, dots[j].y);
-        ctx.stroke();
-        ctx.restore();
+    // === Actual hours dots over the hours bars (right axis) ===
+    if (opts.actualData) {
+      const data = opts.actualData;
+      const budgetIdx = opts.budgetDatasetIndices;
+      const colors = opts.colors || ['#15803d', '#22c55e', '#86efac'];
+      const yScaleId = opts.yScaleId || 'y';
+      const yScale = chart.scales[yScaleId];
+      if (!yScale) return;
+      const numPeople = chart.data.labels.length;
+
+      for (let i = 0; i < numPeople; i++) {
+        const dots = [];
+        for (let m = 0; m < 3; m++) {
+          const meta = chart.getDatasetMeta(budgetIdx[m]);
+          if (!meta || !meta.data || !meta.data[i]) continue;
+          const bar = meta.data[i];
+          const v = data[i][m];
+          const y = yScale.getPixelForValue(v);
+          dots.push({ x: bar.x, y, color: colors[m], value: v });
+        }
+        if (dots.length < 1) continue;
+
+        if (dots.length >= 2) {
+          ctx.save();
+          ctx.strokeStyle = 'rgba(180, 180, 180, 0.55)';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(dots[0].x, dots[0].y);
+          for (let j = 1; j < dots.length; j++) ctx.lineTo(dots[j].x, dots[j].y);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        dots.forEach(d => {
+          ctx.save();
+          ctx.fillStyle = d.color;
+          ctx.strokeStyle = '#1a1a1a';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        });
       }
-
-      dots.forEach(d => {
-        ctx.save();
-        ctx.fillStyle = d.color;
-        ctx.strokeStyle = '#1a1a1a';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-      });
     }
   }
 };
 
-function buildHours() {
+function buildCombined() {
   const people = getFilteredPeople();
-  const emptyDiv = document.getElementById('hours-empty');
-  const canvas = document.getElementById('hoursChart');
+  const emptyDiv = document.getElementById('combined-empty');
+  const canvas = document.getElementById('combinedChart');
   if (people.length === 0) {
-    if (hoursChart) { hoursChart.destroy(); hoursChart = null; }
+    if (combinedChart) { combinedChart.destroy(); combinedChart = null; }
     canvas.style.display = 'none';
     emptyDiv.className = 'empty-chart';
     emptyDiv.textContent = 'No team members match the current filter.';
@@ -1717,14 +2181,72 @@ function buildHours() {
   emptyDiv.className = '';
 
   const labels = people.map(formatLabel);
-  const datasets = [
-    { label: 'Budget ' + DATA.months[0],     data: people.map(p => Math.round(p.data.budget_regular[0]*10)/10), backgroundColor: PAL.blue[0], stack: 'budget_0', borderRadius: 2 },
-    { label: 'Q add-on ' + DATA.months[0],   data: people.map(p => Math.round(p.data.budget_extra[0]*10)/10),   backgroundColor: PAL.amber,   stack: 'budget_0', borderRadius: 2 },
-    { label: 'Budget ' + DATA.months[1],     data: people.map(p => Math.round(p.data.budget_regular[1]*10)/10), backgroundColor: PAL.blue[1], stack: 'budget_1', borderRadius: 2 },
-    { label: 'Q add-on ' + DATA.months[1],   data: people.map(p => Math.round(p.data.budget_extra[1]*10)/10),   backgroundColor: PAL.amber,   stack: 'budget_1', borderRadius: 2 },
-    { label: 'Budget ' + DATA.months[2],     data: people.map(p => Math.round(p.data.budget_regular[2]*10)/10), backgroundColor: PAL.blue[2], stack: 'budget_2', borderRadius: 2 },
-    { label: 'Q add-on ' + DATA.months[2],   data: people.map(p => Math.round(p.data.budget_extra[2]*10)/10),   backgroundColor: PAL.amber,   stack: 'budget_2', borderRadius: 2 },
-  ];
+  const prospectContrib = getProspectContribForRole(state.roleKey);
+  const hasProspects = state.prospectsEnabled.size > 0;
+
+  const pClients  = people.map(p => { const b = prospectContrib.get(p.raw_name); return b ? b.clients.slice()      : [0,0,0]; });
+  const pRecur    = people.map(p => { const b = prospectContrib.get(p.raw_name); return b ? b.recurHours.slice()   : [0,0,0]; });
+  const pOnboard  = people.map(p => { const b = prospectContrib.get(p.raw_name); return b ? b.onboardHours.slice() : [0,0,0]; });
+  const hasProspectClients = hasProspects && pClients.some(c => c.some(v => v > 0));
+  const hasProspectHours   = hasProspects && (pRecur.some(r => r.some(v => v > 0)) || pOnboard.some(r => r.some(v => v > 0)));
+
+  // Total client counts per person per month (active + prospect when layered)
+  const clientCounts = people.map((p, idx) => [0,1,2].map(m => p.data.clients[m] + (hasProspectClients ? pClients[idx][m] : 0)));
+
+  const datasets = [];
+  const closeBaseIndices = [-1, -1, -1]; // base close-bar index per month, used by client overlay plugin
+  const budgetIndices = [-1, -1, -1];    // base hours-bar index per month, used by actual-dot overlay
+
+  // ---------- Closes side (left axis y) ----------
+  for (let m = 0; m < 3; m++) {
+    const stk = 'closes_' + m;
+    closeBaseIndices[m] = datasets.length;
+    datasets.push({
+      label: 'Closes ' + DATA.months[m],
+      data: people.map(p => p.data.closes_regular[m]),
+      backgroundColor: PAL.green[m], stack: stk, yAxisID: 'y', borderRadius: 2,
+    });
+    datasets.push({
+      label: 'Quarterly closes ' + DATA.months[m],
+      data: people.map(p => p.data.closes_extra[m]),
+      backgroundColor: PAL.cyan, stack: stk, yAxisID: 'y', borderRadius: 2,
+    });
+    if (hasProspectClients) {
+      datasets.push({
+        label: 'Prospect closes ' + DATA.months[m],
+        data: pClients.map(c => c[m]), // # of prospect clients (proxy for closes when freq unknown)
+        backgroundColor: PAL.prospectClients, stack: stk, yAxisID: 'y', borderRadius: 2,
+      });
+    }
+  }
+
+  // ---------- Hours side (right axis y2) ----------
+  for (let m = 0; m < 3; m++) {
+    const stk = 'hours_' + m;
+    budgetIndices[m] = datasets.length;
+    datasets.push({
+      label: 'Budget ' + DATA.months[m],
+      data: people.map(p => Math.round(p.data.budget_regular[m]*10)/10),
+      backgroundColor: PAL.blue[m], stack: stk, yAxisID: 'y2', borderRadius: 2,
+    });
+    datasets.push({
+      label: 'Q add-on ' + DATA.months[m],
+      data: people.map(p => Math.round(p.data.budget_extra[m]*10)/10),
+      backgroundColor: PAL.cyan, stack: stk, yAxisID: 'y2', borderRadius: 2,
+    });
+    if (hasProspectHours) {
+      datasets.push({
+        label: 'Prospect recurring ' + DATA.months[m],
+        data: pRecur.map(r => Math.round(r[m]*10)/10),
+        backgroundColor: PAL.violet, stack: stk, yAxisID: 'y2', borderRadius: 2,
+      });
+      datasets.push({
+        label: 'Prospect onboarding ' + DATA.months[m],
+        data: pOnboard.map(r => Math.round(r[m]*10)/10),
+        backgroundColor: PAL.prospectOnboard, stack: stk, yAxisID: 'y2', borderRadius: 2,
+      });
+    }
+  }
 
   const actualData = people.map(p => [
     p.data.actual_regular[0] + p.data.actual_extra[0],
@@ -1732,17 +2254,23 @@ function buildHours() {
     p.data.actual_regular[2] + p.data.actual_extra[2],
   ]);
 
-  let maxV = 0;
-  people.forEach(p => {
+  // Scale: left axis must accommodate max(stacked closes, client count)
+  let maxClients = 0;
+  let maxHours = 0;
+  people.forEach((p, idx) => {
     for (let m = 0; m < 3; m++) {
-      maxV = Math.max(maxV, p.data.budget_regular[m] + p.data.budget_extra[m]);
-      maxV = Math.max(maxV, p.data.actual_regular[m] + p.data.actual_extra[m]);
+      const stackedCloses = p.data.closes_regular[m] + p.data.closes_extra[m] + (hasProspectClients ? pClients[idx][m] : 0);
+      maxClients = Math.max(maxClients, stackedCloses, clientCounts[idx][m]);
+      const stackedHours = p.data.budget_regular[m] + p.data.budget_extra[m] + (hasProspectHours ? (pRecur[idx][m] + pOnboard[idx][m]) : 0);
+      maxHours = Math.max(maxHours, stackedHours);
+      maxHours = Math.max(maxHours, p.data.actual_regular[m] + p.data.actual_extra[m]);
     }
   });
-  const ySuggestedMax = Math.ceil((maxV * 1.1) / 10) * 10;
+  const ySuggestedMaxClients = Math.ceil((maxClients * 1.1) / 5) * 5;
+  const ySuggestedMaxHours   = Math.ceil((maxHours * 1.1) / 10) * 10;
 
-  if (hoursChart) hoursChart.destroy();
-  hoursChart = new Chart(canvas.getContext('2d'), {
+  if (combinedChart) combinedChart.destroy();
+  combinedChart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: { labels, datasets },
     options: {
@@ -1755,33 +2283,57 @@ function buildHours() {
           titleColor: '#f0f0f0', bodyColor: '#d0d0d0', padding: 10,
           filter: (item) => item.parsed.y > 0,
           callbacks: {
-            label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}h`,
+            label: ctx => {
+              const isHours = ctx.dataset.yAxisID === 'y2';
+              const v = ctx.parsed.y;
+              return isHours ? `${ctx.dataset.label}: ${v.toFixed(1)}h` : `${ctx.dataset.label}: ${v}`;
+            },
             afterBody: (items) => {
               if (!items.length) return '';
               const idx = items[0].dataIndex;
               const a = actualData[idx];
-              return ['', 'Actual (avg-based projection):',
+              const c = clientCounts[idx];
+              return [
+                '',
+                'Clients: ' + c.map((n,i) => DATA.months[i].slice(0,3) + ' ' + n).join(' / '),
+                '',
+                'Actual hours (avg-based projection):',
                 `  ${DATA.months[0]}: ${a[0].toFixed(1)}h`,
                 `  ${DATA.months[1]}: ${a[1].toFixed(1)}h`,
-                `  ${DATA.months[2]}: ${a[2].toFixed(1)}h`];
+                `  ${DATA.months[2]}: ${a[2].toFixed(1)}h`,
+              ];
             }
           }
         },
         actualOverlay: {
           actualData: actualData,
-          budgetDatasetIndices: [0, 2, 4],
+          budgetDatasetIndices: budgetIndices,
           colors: [PAL.green[0], PAL.green[1], PAL.green[2]],
+          yScaleId: 'y2',
+          clientOverlay: {
+            clientData: clientCounts,
+            closeBaseIndices: closeBaseIndices,
+            yScaleId: 'y',
+          },
         }
       },
       scales: {
         x: { grid: { display: false }, ticks: { color: '#cfcfcf', font: { size: 12, weight: '500' }, autoSkip: false, maxRotation: 35, minRotation: 0 } },
-        y: { beginAtZero: true, suggestedMax: ySuggestedMax, title: { display: true, text: 'Hours / month', color: '#9a9a9a', font: { size: 11 } },
-             grid: { color: '#2e2e2e' }, ticks: { color: '#9a9a9a', callback: v => v + 'h' } },
+        y: {
+          position: 'left', beginAtZero: true, suggestedMax: ySuggestedMaxClients,
+          title: { display: true, text: 'Closes / Clients (count)', color: '#9a9a9a', font: { size: 11 } },
+          grid: { color: '#2e2e2e' }, ticks: { color: '#9a9a9a', precision: 0 },
+        },
+        y2: {
+          position: 'right', beginAtZero: true, suggestedMax: ySuggestedMaxHours,
+          title: { display: true, text: 'Hours / month', color: '#9a9a9a', font: { size: 11 } },
+          grid: { display: false }, ticks: { color: '#9a9a9a', callback: v => v + 'h' },
+        },
       }
     },
     plugins: [actualOverlayPlugin]
   });
-  document.getElementById('hours-title').textContent = DATA.roles[state.roleKey].title + ' \u2014 Hours: budget (bars) vs actual (dots)';
+  document.getElementById('combined-title').textContent = DATA.roles[state.roleKey].title + ' \u2014 Workload & Hours';
 }
 
 // ===== Net change table =====
@@ -1868,6 +2420,40 @@ function buildNetTable() {
           <td class="num qbump-val">${qb.actual > 0 ? '+' : ''}${qb.actual.toFixed(1)}h</td>
         </tr>` : '';
 
+  // Prospect impact row — show total NEW workload added by layered prospects (not deltas).
+  // Clients = count of prospects whose assignee falls in the filtered subset.
+  // Recurring = sum of per-month recurring rates added.
+  // Onboarding = sum of onboarding hours across all forecast months in the window.
+  const pIdx = w === 'm1_m2' ? [0,1] : w === 'm2_m3' ? [1,2] : [0,2];
+  const filteredNamesSet = new Set(people.map(pp => pp.raw_name));
+  let pClients = 0, pRecurMonthly = 0, pOnboardTotal = 0;
+  for (const p of (DATA.prospects || [])) {
+    if (!state.prospectsEnabled.has(p.client)) continue;
+    const c = p.contributions[state.roleKey];
+    if (!c) continue;
+    const recurInScope   = c.recurAssignee   && filteredNamesSet.has(c.recurAssignee);
+    const onboardInScope = c.onboardAssignee && filteredNamesSet.has(c.onboardAssignee);
+    if (!recurInScope && !onboardInScope) continue;
+    pClients += 1;
+    if (recurInScope) pRecurMonthly += (c.recurHoursPerMonth || 0);
+    if (onboardInScope) {
+      // Sum onboarding hours across the window (start month → end month, inclusive)
+      for (let i = pIdx[0]; i <= pIdx[1]; i++) pOnboardTotal += (c.onboardHours[i] || 0);
+    }
+  }
+  pRecurMonthly = Math.round(pRecurMonthly * 100) / 100;
+  pOnboardTotal = Math.round(pOnboardTotal * 100) / 100;
+  const hasProspectBump = pClients > 0 && (pRecurMonthly > 0.05 || pOnboardTotal > 0.05 || true);
+
+  const pBumpRow = hasProspectBump ? `
+        <tr class="pbump-row" title="${pClients} prospect${pClients===1?'':'s'} layered into this filtered subset — recurring at the monthly rate, plus one-time onboarding pro-rated daily across the kickoff → due window.">
+          <td class="pbump-label">+ Prospects layered <span class="pbump-hint">(${pClients})</span></td>
+          <td class="num pbump-val">+${pClients}</td>
+          <td class="num"></td>
+          <td class="num pbump-val" title="Recurring monthly rate + onboarding hours summed across ${DATA.months[pIdx[0]]} → ${DATA.months[pIdx[1]]}"><span style="font-weight:600">+${pRecurMonthly.toFixed(1)}h/mo rec</span><span style="color:var(--text-faint);font-weight:400"> · </span><span style="font-weight:600">+${pOnboardTotal.toFixed(1)}h onb</span></td>
+          <td class="num"></td>
+        </tr>` : '';
+
   document.getElementById('net-table-wrap').innerHTML = `
     <div style="color:var(--text-faint);font-size:11px;margin-bottom:8px">${wLabel} · transition-driven Δ only — routine workload that moves with clients between people${hasQBump ? '. Quarterly bump shown separately below.' : '.'}</div>
     <table id="net-table">
@@ -1886,7 +2472,7 @@ function buildNetTable() {
           <td class="num">${fmtDelta(tot.closes, false)}</td>
           <td class="num">${fmtDelta(tot.budget, true)}</td>
           <td class="num">${fmtDelta(tot.actual, true)}</td>
-        </tr>${qBumpRow}
+        </tr>${qBumpRow}${pBumpRow}
       </tfoot>
     </table>
   `;
@@ -1902,19 +2488,13 @@ function buildNetTable() {
 }
 
 // ===== Transitions table =====
+const PILL_MONTH_CLASS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 function pillForIso(iso) {
-  // Compare month-year to M1/M2/M3 month-years
-  const ym = iso.slice(0, 7); // YYYY-MM
-  const m1 = `${DATA.monthStarts[0].getFullYear()}-${String(DATA.monthStarts[0].getMonth()+1).padStart(2,'0')}`;
-  const m2 = `${DATA.monthStarts[1].getFullYear()}-${String(DATA.monthStarts[1].getMonth()+1).padStart(2,'0')}`;
-  const m3 = `${DATA.monthStarts[2].getFullYear()}-${String(DATA.monthStarts[2].getMonth()+1).padStart(2,'0')}`;
-  const labelFor = (idx) => DATA.months[idx];
-  if (ym === m1) return `<span class="pill m1">${labelFor(0)}</span>`;
-  if (ym === m2) return `<span class="pill m2">${labelFor(1)}</span>`;
-  if (ym === m3) return `<span class="pill m3">${labelFor(2)}</span>`;
-  // Effective at the start of the month AFTER M3 → label it as such
   const d = new Date(iso + 'T00:00:00');
-  return `<span class="pill beyond">${d.toLocaleString('en-US', { month: 'short', year: 'numeric' })}</span>`;
+  if (isNaN(d.getTime())) return `<span class="pill">${escapeHtml(iso)}</span>`;
+  const monthCls = PILL_MONTH_CLASS[d.getMonth()];
+  const label = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+  return `<span class="pill ${monthCls}">${label}</span>`;
 }
 function displayPersonName(n) {
   return displayPerson(n) || '—';
@@ -1922,42 +2502,90 @@ function displayPersonName(n) {
 
 function buildTransitionsTable() {
   const role = DATA.roles[state.roleKey];
-  document.getElementById('trans-title').textContent = role.title + ' \u2014 scheduled transitions';
+  document.getElementById('trans-title').textContent = role.title + ' \u2014 scheduled changes';
 
   const filteredPeople = getFilteredPeople();
   const filteredNames = new Set(filteredPeople.map(p => p.raw_name));
   const allTrans = role.transitions;
-  const trans = (state.filterMode === 'all')
+  const transitionRows = (state.filterMode === 'all')
     ? allTrans.slice()
     : allTrans.filter(t => filteredNames.has(t.from) || filteredNames.has(t.to));
 
+  // Build prospect rows for the current role from layered-in prospects
+  const prospectRows = [];
+  if (state.prospectsEnabled.size > 0) {
+    for (const p of (DATA.prospects || [])) {
+      if (!state.prospectsEnabled.has(p.client)) continue;
+      const c = p.contributions[state.roleKey];
+      if (!c) continue;
+      // A prospect joining this role is one with a recurring assignee + start date OR onboarding assignee + hours
+      // Prefer the recurring start date as the "effective" date (when ongoing workload kicks in).
+      // Fall back to kickoff if no recurring.
+      const dateIso = p.recur_start_iso || p.kickoff_iso;
+      if (!dateIso) continue;
+      const destPerson = c.recurAssignee || c.onboardAssignee;
+      if (!destPerson) continue;
+      // Filter check: include if destPerson is in filtered set OR filter is all
+      if (state.filterMode !== 'all' && !filteredNames.has(destPerson)) continue;
+      prospectRows.push({
+        client: p.client,
+        date_iso: dateIso,
+        from: null,
+        to: destPerson,
+        budget: c.recurHoursPerMonth || 0,
+        isProspect: true,
+        kickoffIso: p.kickoff_iso,
+        dueIso: p.due_iso,
+        recurStartIso: p.recur_start_iso,
+        onboardHours: c.totalOnboardHours,
+      });
+    }
+  }
+
+  const trans = transitionRows.concat(prospectRows);
+
+  const summaryParts = [];
+  summaryParts.push(transitionRows.length + ' transition' + (transitionRows.length === 1 ? '' : 's'));
+  if (prospectRows.length > 0) summaryParts.push(prospectRows.length + ' prospect' + (prospectRows.length === 1 ? '' : 's') + ' layered');
   document.getElementById('trans-sub').textContent =
-    trans.length + ' transition' + (trans.length === 1 ? '' : 's') + (state.filterMode === 'all' ? '' : ' matching filter') + ' between ' + DATA.months[0] + ' and ' + DATA.months[2] + ' \u00b7 click a column header to sort';
+    summaryParts.join(' · ') + (state.filterMode === 'all' ? '' : ' matching filter') + ' \u00b7 click a column header to sort';
 
   const wrap = document.getElementById('trans-table-wrap');
   if (trans.length === 0) {
-    wrap.innerHTML = '<div class="empty">No transitions match the current filter.</div>';
+    wrap.innerHTML = '<div class="empty">No scheduled changes match the current filter.</div>';
     return;
   }
   const dir = state.transSort.dir === 'asc' ? 1 : -1;
   trans.sort((a,b) => {
     const c = state.transSort.col;
-    if (c === 'budget') return (a.budget - b.budget) * dir;
+    if (c === 'budget') return ((a.budget || 0) - (b.budget || 0)) * dir;
     const va = (a[c] || '').toString().toLowerCase();
     const vb = (b[c] || '').toString().toLowerCase();
     return va < vb ? -dir : va > vb ? dir : 0;
   });
 
   const arrow = (c) => state.transSort.col === c ? `<span class="arrow-ind">${state.transSort.dir === 'asc' ? '\u25B2' : '\u25BC'}</span>` : '<span class="arrow-ind">\u25B3</span>';
-  const rows = trans.map(t => `
-    <tr>
+  const rows = trans.map(t => {
+    if (t.isProspect) {
+      const kickoff = shortDateLocal(t.kickoffIso);
+      const due = shortDateLocal(t.dueIso);
+      const onboardNote = t.onboardHours > 0 ? ` · ${t.onboardHours}h onb (${kickoff}→${due})` : '';
+      return `<tr class="prospect-row" title="Prospect — toggled on in Prospects panel. Onboarding pro-rated daily across kickoff → due; recurring starts on the recurring-start date.">
+        <td>${pillForIso(t.date_iso)} <span class="prospect-badge">Prospect</span></td>
+        <td>${escapeHtml(t.client)}<span class="prospect-meta">${onboardNote}</span></td>
+        <td style="color:var(--text-faint)">—</td>
+        <td>${escapeHtml(displayPersonName(t.to))}</td>
+        <td class="num" style="color:var(--text-dim)">${(t.budget || 0).toFixed(1)}h</td>
+      </tr>`;
+    }
+    return `<tr>
       <td>${pillForIso(t.date_iso)}</td>
       <td>${escapeHtml(t.client)}</td>
       <td style="color:var(--text-dim)">${escapeHtml(displayPersonName(t.from))}</td>
       <td>${escapeHtml(displayPersonName(t.to))}</td>
       <td class="num" style="color:var(--text-dim)">${t.budget.toFixed(1)}h</td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
   wrap.innerHTML = `<table id="trans-table">
     <thead><tr>
       <th class="sortable ${state.transSort.col==='date_iso'?'sorted':''}" data-col="date_iso">Effective ${arrow('date_iso')}</th>
@@ -2140,6 +2768,38 @@ function clientRowHtml(c, roleShort) {
   `;
 }
 
+function prospectClientRowHtml(p, roleKey) {
+  const c = p.contributions[roleKey];
+  if (!c) return '';
+  const person = displayPerson(c.recurAssignee || c.onboardAssignee) || '<span class="none">—</span>';
+  const kickoff = shortDateLocal(p.kickoff_iso);
+  const due = shortDateLocal(p.due_iso);
+  const recur = shortDateLocal(p.recur_start_iso);
+  const budStr = c.recurHoursPerMonth ? c.recurHoursPerMonth.toFixed(1) + 'h' : '<span class="none">—</span>';
+  const onbStr = c.totalOnboardHours ? `${c.totalOnboardHours.toFixed(1)}h total` : '<span class="none">—</span>';
+  return `<tr class="prospect-portfolio-row" title="Prospect — toggled on in Prospects panel. Onboarding ${c.totalOnboardHours.toFixed(1)}h pro-rated across ${kickoff} → ${due}; recurring ${c.recurHoursPerMonth}h/mo from ${recur}.">
+    <td class="caret-col"><span class="prospect-marker">◐</span></td>
+    <td><span class="client-cell"><span class="client-name">${escapeHtml(p.client)}</span><span class="prospect-badge">Prospect</span>${p.frequency ? `<span class="prospect-meta">${escapeHtml(p.frequency)}</span>` : ''}</span></td>
+    <td><span class="pn-cell"><span class="pn-date">recur ${recur}</span></span></td>
+    <td>${person}</td>
+    <td class="num">${budStr}</td>
+    <td class="num"><span class="prospect-onb-cell" title="Onboarding hours total, pro-rated daily across kickoff → due">${onbStr}</span></td>
+    <td><span class="pn-cell"><span class="pn-date">kickoff ${kickoff}</span></span></td>
+    <td><span class="pn-cell"><span class="pn-date">due ${due}</span></span></td>
+  </tr>`;
+}
+
+function prospectsSectionHeader(count) {
+  return `<tr class="prospects-section-header">
+    <td colspan="8">
+      <div>
+        <span class="prospects-section-label">◐ Prospects layered (${count})</span>
+        <span class="prospects-section-sub">Onboarding pro-rated daily across kickoff → due. Recurring starts on the recurring-start date. Onboard column shows total onboarding hours.</span>
+      </div>
+    </td>
+  </tr>`;
+}
+
 function summarizeClients(clientList, roleShort) {
   let count = clientList.length, budget = 0, actual = 0;
   clientList.forEach(c => {
@@ -2259,6 +2919,49 @@ function renderFlatPortfolio(role, roleShort) {
     ` · click a row to expand`;
 
   const rowsHtml = sorted.map(c => clientRowHtml(c, roleShort)).join('');
+
+  // Prospect rows for this role (if any toggled on)
+  const prospectsForRole = (DATA.prospects || []).filter(p => {
+    if (!state.prospectsEnabled.has(p.client)) return false;
+    const c = p.contributions[state.roleKey];
+    return c && (c.recurAssignee || c.onboardAssignee);
+  });
+  let prospectHtml = '';
+  let withProspectsRow = '';
+  if (prospectsForRole.length > 0) {
+    // Filter prospects to those whose assignee is in the filtered subset
+    const allowedNames = new Set(getFilteredPeople().map(p => p.raw_name));
+    const inScopeProspects = prospectsForRole.filter(p => {
+      const c = p.contributions[state.roleKey];
+      return (c.recurAssignee && allowedNames.has(c.recurAssignee)) || (c.onboardAssignee && allowedNames.has(c.onboardAssignee));
+    });
+    if (inScopeProspects.length > 0) {
+      prospectHtml = prospectsSectionHeader(inScopeProspects.length) +
+        inScopeProspects.map(p => prospectClientRowHtml(p, state.roleKey)).join('');
+
+      let pRecurAddon = 0, pOnboardAddon = 0;
+      inScopeProspects.forEach(p => {
+        const c = p.contributions[state.roleKey];
+        if (c.recurAssignee && allowedNames.has(c.recurAssignee)) pRecurAddon += (c.recurHoursPerMonth || 0);
+        if (c.onboardAssignee && allowedNames.has(c.onboardAssignee)) pOnboardAddon += (c.totalOnboardHours || 0);
+      });
+      pRecurAddon = Math.round(pRecurAddon * 10) / 10;
+      pOnboardAddon = Math.round(pOnboardAddon * 10) / 10;
+      const withTotalCount = totals.count + inScopeProspects.length;
+      const withTotalBudget = Math.round((totals.budget + pRecurAddon) * 10) / 10;
+
+      withProspectsRow = `<tr class="total-row" style="background:rgba(251, 191, 36, 0.06);border-top:1px dashed rgba(251, 191, 36, 0.4)">
+          <td></td>
+          <td class="label-cell" style="color:var(--amber)">With prospects</td>
+          <td></td>
+          <td>${withTotalCount} clients</td>
+          <td class="num" style="color:var(--amber)">${withTotalBudget.toFixed(1)}h</td>
+          <td class="num">${totals.actual.toFixed(1)}h</td>
+          <td colspan="2" style="color:var(--text-faint);font-size:11px">+${pOnboardAddon.toFixed(1)}h onboarding ramp (one-time)</td>
+        </tr>`;
+    }
+  }
+
   const totalRowHtml = `<tr class="total-row">
       <td></td>
       <td class="label-cell">Total</td>
@@ -2269,7 +2972,7 @@ function renderFlatPortfolio(role, roleShort) {
       <td></td>
       <td></td>
     </tr>`;
-  document.getElementById('portfolio-table-host').innerHTML = portfolioTableShell(rowsHtml + totalRowHtml, sortCol);
+  document.getElementById('portfolio-table-host').innerHTML = portfolioTableShell(prospectHtml + rowsHtml + totalRowHtml + withProspectsRow, sortCol);
 }
 
 function renderSectionedPortfolio(role, roleShort, filteredRaw) {
@@ -2348,12 +3051,46 @@ function renderSectionedPortfolio(role, roleShort, filteredRaw) {
                                  { count: runCount, budget: runBudget, actual: runActual }, 'running'));
   });
 
+  // Prospects (if any toggled on) where this person is the destination for the current role
+  const prospectsForPerson = (DATA.prospects || []).filter(p => {
+    if (!state.prospectsEnabled.has(p.client)) return false;
+    const c = p.contributions[state.roleKey];
+    return c && (c.recurAssignee === filteredRaw || c.onboardAssignee === filteredRaw);
+  });
+  if (prospectsForPerson.length > 0) {
+    html.push(prospectsSectionHeader(prospectsForPerson.length));
+    let pRecurAddon = 0, pOnboardAddon = 0;
+    prospectsForPerson.forEach(p => {
+      html.push(prospectClientRowHtml(p, state.roleKey));
+      const c = p.contributions[state.roleKey];
+      // Recurring rate adds to the steady-state monthly load
+      if (c.recurAssignee === filteredRaw) pRecurAddon += (c.recurHoursPerMonth || 0);
+      // Onboarding contributes the TOTAL over the forecast window (peak month dominates)
+      if (c.onboardAssignee === filteredRaw) {
+        pOnboardAddon += (c.totalOnboardHours || 0);
+      }
+    });
+    pRecurAddon = Math.round(pRecurAddon * 10) / 10;
+    pOnboardAddon = Math.round(pOnboardAddon * 10) / 10;
+    // "With prospects" steady-state total: ongoing recurring rate combines into monthly budget
+    const withProspectsBudget = Math.round((runBudget + pRecurAddon) * 10) / 10;
+    html.push(`<tr class="running-total-row prospects-with-row">
+      <td colspan="8">
+        <div>
+          <span class="running-label" style="color:var(--amber)">With prospects layered (steady-state monthly + onboarding ramp)</span>
+          <span class="running-stats" style="color:var(--amber)"><b>${runCount + prospectsForPerson.length}</b> clients · <b>${withProspectsBudget.toFixed(1)}h</b> budget /mo · <b>${runActual.toFixed(1)}h</b> actual · <b>+${pOnboardAddon.toFixed(1)}h</b> one-time onboarding</span>
+        </div>
+      </td>
+    </tr>`);
+  }
+
   const totalCurrentTrans = currentAll.filter(c => c.transition).length;
   document.getElementById('portfolio-summary').textContent =
     `Filtered to ${displayPerson(filteredRaw) || filteredRaw}` +
     ` · ${currentAll.length} current client${currentAll.length===1?'':'s'}` +
     (incomingAll.length ? ` · ${incomingAll.length} incoming` : '') +
     (departingAll.length ? ` · ${departingAll.length} departing` : '') +
+    (prospectsForPerson.length ? ` · ${prospectsForPerson.length} prospect${prospectsForPerson.length===1?'':'s'}` : '') +
     (state.portfolioSearch ? ` · search: "${state.portfolioSearch}"` : '') +
     ` · click a row to expand`;
 
@@ -2435,8 +3172,7 @@ function jumpToTransition(clientName) {
 }
 
 function renderAll() {
-  buildWorkload();
-  buildHours();
+  buildCombined();
   buildPortfolio();
   buildNetTable();
   buildTransitionsTable();
@@ -2480,6 +3216,28 @@ document.getElementById('custom-select-all').addEventListener('click', () => {
 document.getElementById('custom-clear').addEventListener('click', () => {
   state.customSelected.clear();
   buildCustomPanel(); renderAll(); updateChipCustomLabel();
+});
+
+// Prospects button + panel
+document.getElementById('prospects-btn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const panel = document.getElementById('prospects-panel');
+  panel.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  const pInline = document.getElementById('prospects-inline');
+  if (pInline && !pInline.contains(e.target)) {
+    document.getElementById('prospects-panel').classList.remove('open');
+  }
+});
+document.getElementById('prospects-all').addEventListener('click', () => {
+  if (!DATA || !DATA.prospects) return;
+  DATA.prospects.forEach(p => state.prospectsEnabled.add(p.client));
+  buildProspectsPanel(); renderAll();
+});
+document.getElementById('prospects-clear').addEventListener('click', () => {
+  state.prospectsEnabled.clear();
+  buildProspectsPanel(); renderAll();
 });
 
 document.querySelectorAll('.tab').forEach(t => {
