@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PlotPath Portfolio Forecast</title>
+<title>PlotPath Capacity Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
@@ -27,9 +27,7 @@
   .header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 6px; }
   h1 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
   .subtitle { color: var(--text-dim); font-size: 13px; }
-  .months-note { color: var(--text-faint); font-size: 12px; margin-top: 4px; }
 
-  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
   .refresh-btn {
     background: var(--panel-2); border: 1px solid var(--border); color: var(--text-dim);
     padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;
@@ -43,6 +41,7 @@
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   .refreshed-stamp { color: var(--text-faint); font-size: 10.5px; text-align: right; white-space: nowrap; }
   .refreshed-stamp.error { color: var(--neg); }
+  .data-source-inline { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 22px 0; }
   .kpi { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
@@ -124,25 +123,48 @@
   /* === Prospects button + panel === */
   .prospects-inline { position: relative; flex-shrink: 0; }
   .prospects-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 10px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 3px 4px 3px 4px; border-radius: 999px;
     background: var(--panel-2); border: 1px solid var(--border);
     color: var(--text-dim); font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s; user-select: none;
+    transition: all 0.15s; user-select: none;
     letter-spacing: 0.01em; white-space: nowrap;
   }
-  .prospects-btn:hover { color: var(--text); border-color: #4a4a4a; }
-  .prospects-btn .prospects-icon { color: var(--amber); font-size: 12px; line-height: 1; }
+  .prospects-btn:hover { border-color: #4a4a4a; }
+  .prospects-btn .prospects-toggle {
+    display: inline-block; position: relative;
+    width: 26px; height: 14px;
+    background: #4a4a4a; border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.18s;
+    flex-shrink: 0;
+  }
+  .prospects-btn .prospects-toggle-knob {
+    position: absolute; top: 1px; left: 1px;
+    width: 12px; height: 12px;
+    background: #d8d8d8; border-radius: 50%;
+    transition: left 0.18s, background 0.18s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  }
+  .prospects-btn.active .prospects-toggle { background: var(--amber); }
+  .prospects-btn.active .prospects-toggle-knob { left: 13px; background: #fff; }
+  .prospects-btn .prospects-label-area {
+    display: inline-flex; align-items: center; gap: 5px;
+    cursor: pointer; padding: 1px 8px 1px 2px; border-radius: 999px;
+    color: var(--text-dim);
+  }
+  .prospects-btn .prospects-label-area:hover { color: var(--text); }
+  .prospects-btn .prospects-caret { color: var(--text-faint); font-size: 9px; margin-left: 2px; }
   .prospects-btn .prospects-count {
     background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
     padding: 0 6px; font-size: 9.5px; color: var(--text-faint); font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
   .prospects-btn.active {
-    background: rgba(251, 191, 36, 0.10);
+    background: rgba(251, 191, 36, 0.08);
     border-color: rgba(251, 191, 36, 0.55);
-    color: var(--amber);
   }
+  .prospects-btn.active .prospects-label-area { color: var(--amber); }
   .prospects-btn.active .prospects-count {
     background: rgba(251, 191, 36, 0.18);
     border-color: rgba(251, 191, 36, 0.5);
@@ -176,7 +198,7 @@
   .prospect-item {
     display: flex; gap: 10px; padding: 10px 12px;
     background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
-    cursor: pointer; transition: all 0.12s;
+    transition: all 0.12s;
   }
   .prospect-item:hover { border-color: rgba(251, 191, 36, 0.45); }
   .prospect-item.active {
@@ -188,6 +210,11 @@
   .prospect-item .name {
     color: var(--text); font-weight: 500; font-size: 13px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    cursor: pointer; padding: 2px 4px; margin: -2px -4px; border-radius: 3px;
+    transition: all 0.1s; display: inline-block; max-width: 100%;
+  }
+  .prospect-item .name:hover {
+    color: var(--amber); background: rgba(251, 191, 36, 0.12); text-decoration: underline;
   }
   .prospect-item .meta {
     color: var(--text-faint); font-size: 10.5px; margin-top: 3px;
@@ -204,7 +231,7 @@
   }
   .prospect-item .role-chip b { color: var(--text); font-weight: 600; }
 
-  .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px 16px; margin-bottom: 16px; }
+  .chart-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 18px 22px 16px; margin-bottom: 16px; position: relative; }
   .chart-card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
   .chart-card .card-sub { color: var(--text-faint); font-size: 12px; margin-bottom: 14px; }
   .chart-host { position: relative; height: 380px; }
@@ -425,6 +452,36 @@
   .trans-pill.oct { background: #4a1a1a; color: #fca5a5; border-color: rgba(252, 165, 165, 0.35); }
   .trans-pill.nov { background: #2d2554; color: #c4b5fd; border-color: rgba(196, 181, 253, 0.35); }
   .trans-pill.dec { background: #1a3a3a; color: #5eead4; border-color: rgba(94, 234, 212, 0.35); }
+  .trans-pill.cancelled-pill {
+    background: rgba(248, 113, 113, 0.14) !important;
+    color: #f87171 !important;
+    border-color: rgba(248, 113, 113, 0.45) !important;
+  }
+
+  /* === Custom chart tooltip === */
+  #combined-tooltip {
+    position: absolute; pointer-events: none;
+    background: #1f1f1f; border: 1px solid #444; border-radius: 6px;
+    padding: 10px 12px; min-width: 280px;
+    color: #d0d0d0; font-size: 12px; line-height: 1.45;
+    opacity: 0; transition: opacity 0.12s;
+    z-index: 1000;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    font-variant-numeric: tabular-nums;
+  }
+  #combined-tooltip .ttip-title { color: #f0f0f0; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+  #combined-tooltip table.ttip-grid { width: 100%; border-collapse: collapse; }
+  #combined-tooltip table.ttip-grid td { padding: 1.5px 4px; vertical-align: middle; white-space: nowrap; }
+  #combined-tooltip .ttip-swatch-cell { width: 14px; padding-right: 2px !important; }
+  #combined-tooltip .ttip-swatch {
+    display: inline-block; width: 11px; height: 11px; border-radius: 2px; vertical-align: middle;
+  }
+  #combined-tooltip .ttip-swatch.swatch-dot { border-radius: 50%; }
+  #combined-tooltip .ttip-label { color: #b8b8b8; padding-right: 8px !important; }
+  #combined-tooltip .ttip-val { text-align: right; min-width: 50px; color: #e8e8e8; font-weight: 500; }
+  #combined-tooltip .ttip-val.ttip-zero { color: #666; font-weight: 400; }
+  #combined-tooltip .ttip-month-header td { color: #888; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 4px !important; }
+  #combined-tooltip .ttip-sep { height: 6px; }
 
   .client-cell { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .client-name { font-weight: 500; }
@@ -536,6 +593,8 @@
     border-top: 1px solid rgba(251, 191, 36, 0.18);
   }
   #trans-table tr.prospect-row:hover td { background: rgba(251, 191, 36, 0.07); }
+  #trans-table tr.cancelled-row td { background: rgba(248, 113, 113, 0.06); }
+  #trans-table tr.cancelled-row:hover td { background: rgba(248, 113, 113, 0.12); }
   .prospect-badge {
     display: inline-block; margin-left: 6px;
     padding: 1px 7px; border-radius: 9px;
@@ -545,6 +604,17 @@
     color: var(--amber);
     border: 1px solid rgba(251, 191, 36, 0.45);
   }
+  .cancelled-badge {
+    display: inline-block; margin-left: 6px;
+    padding: 1px 7px; border-radius: 9px;
+    font-size: 9.5px; font-weight: 600; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: rgba(248, 113, 113, 0.14);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.45);
+  }
+  .portfolio-table tr.cancelling-row td { background: rgba(248, 113, 113, 0.05); }
+  .portfolio-table tr.cancelling-row:hover td { background: rgba(248, 113, 113, 0.1); }
   .prospect-meta { color: var(--text-faint); font-size: 10.5px; margin-left: 6px; }
 
   /* Prospect rows in portfolio table */
@@ -573,21 +643,8 @@
 <div class="wrap">
   <div class="header">
     <div>
-      <h1>Portfolio Forecast</h1>
+      <h1>Capacity Dashboard</h1>
       <div class="subtitle">3-month outlook by team member &middot; client load, closes, budgeted &amp; actual hours</div>
-      <div class="months-note" id="months-note">Loading…</div>
-    </div>
-    <div class="header-right">
-      <div class="refreshed-stamp" id="refreshed-stamp">—</div>
-      <button class="refresh-btn" id="load-btn" title="Load a CSV file from disk (or drag-and-drop a CSV anywhere on this page)">
-        <span style="font-size:13px">📂</span>
-        <span>Load CSV</span>
-      </button>
-      <button class="refresh-btn" id="refresh-btn" title="Retry fetching live data from Google Sheets">
-        <span class="refresh-icon">↻</span>
-        <span>Refresh</span>
-      </button>
-      <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none">
     </div>
   </div>
 
@@ -632,15 +689,20 @@
         </div>
       </div>
       <div class="prospects-inline" id="prospects-inline">
-        <button class="prospects-btn" id="prospects-btn" type="button" title="Layer prospect onboarding &amp; recurring workload into the projections">
-          <span class="prospects-icon">◐</span>
-          <span class="prospects-label">Prospects</span>
-          <span class="prospects-count" id="prospects-count">0 / 0</span>
-        </button>
+        <div class="prospects-btn" id="prospects-btn" title="Toggle prospects on/off (the switch) or click the label to pick individual prospects">
+          <span class="prospects-toggle" id="prospects-toggle" title="Master toggle — flips all prospects on/off">
+            <span class="prospects-toggle-knob"></span>
+          </span>
+          <span class="prospects-label-area" id="prospects-label-area">
+            <span class="prospects-label">Prospects</span>
+            <span class="prospects-count" id="prospects-count">0 / 0</span>
+            <span class="prospects-caret">▾</span>
+          </span>
+        </div>
         <div class="prospects-panel" id="prospects-panel">
           <div class="prospects-panel-head">
             <div class="prospects-panel-title">Layer prospects</div>
-            <div class="prospects-panel-sub">Off by default. Toggle which prospects to include in the projections — onboarding hours pro-rated daily across kickoff → due, recurring starts on the recurring-start date.</div>
+            <div class="prospects-panel-sub">The switch at left flips all prospects on/off in one tap. Use the checkboxes for fine-grained add/remove, or click a prospect's name to filter to only that one.</div>
           </div>
           <div class="prospects-actions">
             <button id="prospects-all" type="button">Select all</button>
@@ -649,16 +711,30 @@
           <div class="prospects-list" id="prospects-list"></div>
         </div>
       </div>
+      <div class="data-source-inline">
+        <button class="refresh-btn" id="load-btn" title="Load a CSV file from disk (or drag-and-drop a CSV anywhere on this page)">
+          <span style="font-size:11px">📂</span>
+          <span>Load CSV</span>
+        </button>
+        <button class="refresh-btn" id="refresh-btn" title="Retry fetching live data from Google Sheets">
+          <span class="refresh-icon">↻</span>
+          <span>Refresh</span>
+        </button>
+        <input type="file" id="csv-file-input" accept=".csv,text/csv" style="display:none">
+        <div class="refreshed-stamp" id="refreshed-stamp">—</div>
+      </div>
     </div>
 
     <div class="chart-card">
       <h3 id="combined-title">Controllers — Workload &amp; Hours</h3>
-      <div class="card-sub">Per person: three close bars (left axis) grouped left, three hour bars (right axis) grouped right. Each close bar stacks routine closes (green) + quarterly bump (cyan) + prospect closes (amber, when prospects on); a gray diagonal-stripe overlay sits at the height of the client count for that month. Each hour bar stacks budget (blue) + quarterly cap (cyan) + prospect recurring (violet) + prospect onboarding (amber, when prospects on). Green dots = actual hours, one per month per person.</div>
+      <div class="card-sub">Per person: three close bars (left axis) grouped left, three hour bars (right axis) grouped right. Each close bar stacks routine closes (green) + quarterly bump (cyan) + prospect closes (amber, when prospects on); on top sits a stripe overlay showing client count — gray stripe = monthly clients, cyan stripe extends above = quarterly clients (dormant in non-trigger months, active in Apr/Jul/Oct/Jan). Each hour bar stacks budget (blue) + quarterly cap (cyan) + prospect recurring (violet) + prospect onboarding (amber, when prospects on). Green dots = actual hours, one per month per person.</div>
       <div class="legend-strip">
         <div class="legend-group"><span class="lbl">Closes</span>
           <span class="swatch-row"><span class="swatch" style="background:var(--green-1)"></span><span class="swatch" style="background:var(--green-2)"></span><span class="swatch" style="background:var(--green-3)"></span></span></div>
-        <div class="legend-group"><span class="lbl">Clients (overlay)</span>
-          <span class="swatch-row"><span class="swatch" id="legend-clients" style="background:repeating-linear-gradient(135deg, transparent 0px, transparent 3px, rgba(220,220,220,0.6) 3px, rgba(220,220,220,0.6) 4px); border:1px solid rgba(220,220,220,0.4)"></span></span></div>
+        <div class="legend-group"><span class="lbl">Monthly clients</span>
+          <span class="swatch-row"><span class="swatch" style="background:repeating-linear-gradient(135deg, transparent 0px, transparent 3px, rgba(220,220,220,0.6) 3px, rgba(220,220,220,0.6) 4px); border:1px solid rgba(220,220,220,0.4)"></span></span></div>
+        <div class="legend-group"><span class="lbl">Quarterly clients</span>
+          <span class="swatch-row"><span class="swatch" style="background:repeating-linear-gradient(135deg, transparent 0px, transparent 3px, rgba(34,211,238,0.78) 3px, rgba(34,211,238,0.78) 4px); border:1px solid rgba(34,211,238,0.5)"></span></span></div>
         <div class="legend-group"><span class="lbl">Budget hrs</span>
           <span class="swatch-row"><span class="swatch" style="background:var(--blue-1)"></span><span class="swatch" style="background:var(--blue-2)"></span><span class="swatch" style="background:var(--blue-3)"></span></span></div>
         <div class="legend-group"><span class="lbl">Quarterly add-on</span>
@@ -672,6 +748,7 @@
         <div class="month-labels" style="margin-left:auto" id="month-labels-1"></div>
       </div>
       <div class="chart-host tall"><canvas id="combinedChart"></canvas><div id="combined-empty"></div></div>
+      <div id="combined-tooltip"></div>
     </div>
 
     <div class="panel" id="portfolio-panel">
@@ -998,6 +1075,7 @@ const OPEN_SEAT_PLACEHOLDER = {
   BK: '__Client',
   Analyst: '_Analyst 1',
 };
+const CANCELLED_PLACEHOLDER = '_cancelled';
 
 const PAL = {
   blue:  ['#1d4ed8', '#3b82f6', '#93c5fd'],
@@ -1162,16 +1240,22 @@ function personSortKey(p) {
 }
 
 function aggregate(rows, months) {
+  // Helper to test status with trailing-whitespace tolerance
+  const statusOf = (r) => (r['Status'] || '').trim();
+  const isActiveLike = (r) => { const s = statusOf(r); return s === 'Active' || s === 'Cancelling'; };
+
   // For workload/aggregates: monthly+quarterly only
-  const active = rows.filter(r => (r['Status'] || '').trim() === 'Active' && FREQ_MQ(r['Frequency']));
-  // For full portfolio table: all active clients regardless of frequency
-  const allActive = rows.filter(r => (r['Status'] || '').trim() === 'Active');
+  const active = rows.filter(r => isActiveLike(r) && FREQ_MQ(r['Frequency']));
+  // For full portfolio table: all active or cancelling regardless of frequency
+  const allActive = rows.filter(r => isActiveLike(r));
   // For prospects: separate handling; off by default in the UI
-  const prospectRows = rows.filter(r => (r['Status'] || '').trim() === 'Prospect');
+  const prospectRows = rows.filter(r => statusOf(r) === 'Prospect');
 
   function blank() {
     return {
       clients: [0,0,0],
+      monthlyClients: [0,0,0],
+      quarterlyClients: [0,0,0],
       closes_regular: [0,0,0],
       closes_extra: [0,0,0],
       budget_regular: [0,0,0],
@@ -1191,6 +1275,8 @@ function aggregate(rows, months) {
       const budget = num(r[hoursBudgetCol]);
       const actual = num(r[hoursActualCol]);
       const isQ = IS_QUARTERLY(r['Frequency']);
+      const isCancelling = statusOf(r) === 'Cancelling';
+      const termDate = isCancelling ? parseDate(r['Termination Date']) : null;
 
       // Capture transition if present — show ALL future transitions regardless of date.
       // Empty next-name with a set next-date is treated as a transition to an open seat.
@@ -1219,9 +1305,32 @@ function aggregate(rows, months) {
         }
       }
 
+      // Cancellation transition: synthetic, current assignee → CANCELLED on termination date
+      if (isCancelling && termDate && tc) {
+        if (!(roleKey === 'CR' && CFO_EXCLUDE.has(tc))) {
+          const isoDate = termDate.toISOString().slice(0, 10);
+          const key = `${r['Client']}|${isoDate}|${tc}|_cancelled`;
+          if (!transitionSeen.has(key)) {
+            transitionSeen.add(key);
+            transitionList.push({
+              client: r['Client'],
+              date_iso: isoDate,
+              from: tc,
+              to: CANCELLED_PLACEHOLDER,
+              budget: budget,
+              cancelled: true,
+            });
+          }
+        }
+      }
+
       // Per-month contributions
       for (let i = 0; i < 3; i++) {
         const m = months[i];
+        // Cancelling clients drop out of workload starting from the month containing termDate.
+        // Rule: if termDate <= m.start, skip this month. So term = Jul 1 means May/Jun count, Jul does not.
+        if (isCancelling && termDate && termDate <= m.start) continue;
+
         const assignee = resolveAssignee(r, roleKey, m.start);
         if (!assignee) continue;
         if (roleKey === 'CR' && CFO_EXCLUDE.has(assignee)) continue;
@@ -1233,6 +1342,8 @@ function aggregate(rows, months) {
 
         // Client counts: monthly every month; quarterly counts as assignment every month too
         bucket.clients[i] += 1;
+        if (isQ) bucket.quarterlyClients[i] += 1;
+        else      bucket.monthlyClients[i] += 1;
 
         // Hours and closes: monthly every month; quarterly only in trigger months
         if (isQ) {
@@ -1546,6 +1657,20 @@ function buildClientsForRole(activeRows, anchorRoleKey) {
 
     const flags = computeRiskFlags(rolesObj, roleShort);
 
+    const status = (r['Status'] || '').trim();
+    const cancelling = status === 'Cancelling';
+    const termDate = cancelling ? parseDate(r['Termination Date']) : null;
+
+    // If cancelling and we don't already have a "next" transition, synthesize one for display.
+    if (cancelling && !transition && termDate) {
+      transition = {
+        to: CANCELLED_PLACEHOLDER,
+        to_iso: dateToISO(termDate),
+        month_short: termDate.toLocaleString('en-US', { month: 'short' }).toLowerCase(),
+        cancelled: true,
+      };
+    }
+
     out.push({
       client: r['Client'],
       client_since: sinceISO,
@@ -1555,6 +1680,8 @@ function buildClientsForRole(activeRows, anchorRoleKey) {
       roles: rolesObj,
       transition,
       flags,
+      cancelling,
+      termDate_iso: termDate ? dateToISO(termDate) : null,
     });
   }
   // Sort alphabetically by default
@@ -1749,10 +1876,6 @@ async function loadData(isManual) {
 }
 
 function onDataLoaded(isManual) {
-  // Update header context
-  document.getElementById('months-note').textContent =
-    'Months shown: ' + DATA.months.join(' \u2192 ') + ' \u00b7 each metric shows three side-by-side bars per person, one per month';
-
   const monthLabel = DATA.months.map(m => '<b>' + m + '</b>').join(' &nbsp;\u2192&nbsp; ');
   document.getElementById('month-labels-1').innerHTML = monthLabel;
 
@@ -2011,25 +2134,41 @@ function buildProspectsPanel() {
       roleChips.push(`<span class="role-chip">${roleLabel} → ${escapeHtml(who)} · ${hourParts.join(' · ')}</span>`);
     }
 
-    return `<label class="prospect-item ${active}" data-client="${escapeHtml(p.client)}">
-      <input type="checkbox" data-client="${escapeHtml(p.client)}" ${checked}>
+    return `<div class="prospect-item ${active}" data-client="${escapeHtml(p.client)}">
+      <input type="checkbox" data-client="${escapeHtml(p.client)}" ${checked} title="Add to / remove from the layered set">
       <div class="body">
-        <div class="name">${escapeHtml(p.client)}</div>
+        <div class="name" data-only-for="${escapeHtml(p.client)}" title="Click to filter to only this prospect">${escapeHtml(p.client)}</div>
         <div class="meta">Kickoff <b>${kickoff}</b> · Due <b>${due}</b> · Recurring start <b>${recur}</b>${p.frequency ? ` · ${escapeHtml(p.frequency)}` : ''}</div>
         <div class="roles">${roleChips.join('')}</div>
       </div>
-    </label>`;
+    </div>`;
   }).join('');
 
   list.innerHTML = html;
 
+  // Checkbox = add/remove single prospect
   list.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('click', e => e.stopPropagation());
     cb.addEventListener('change', () => {
       const name = cb.dataset.client;
       if (cb.checked) state.prospectsEnabled.add(name);
       else state.prospectsEnabled.delete(name);
-      const label = cb.closest('.prospect-item');
-      if (label) label.classList.toggle('active', cb.checked);
+      const item = cb.closest('.prospect-item');
+      if (item) item.classList.toggle('active', cb.checked);
+      updateProspectsButton();
+      renderAll();
+    });
+  });
+
+  // Name click = filter to only that prospect (matches Custom controller behavior)
+  list.querySelectorAll('.prospect-item .name').forEach(nameEl => {
+    nameEl.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const name = nameEl.dataset.onlyFor;
+      state.prospectsEnabled.clear();
+      state.prospectsEnabled.add(name);
+      buildProspectsPanel(); // re-render to refresh checkboxes / active classes
       updateProspectsButton();
       renderAll();
     });
@@ -2056,12 +2195,11 @@ function updateProspectsButton() {
 // ===== Charts =====
 let combinedChart = null;
 
-// Canvas pattern for the client overlay — transparent base + subtle gray diagonal stripes
+// Canvas pattern: transparent base + subtle gray diagonal stripes (for monthly clients overlay)
 function makeGrayStripePattern(ctx) {
   const tile = document.createElement('canvas');
   tile.width = 8; tile.height = 8;
   const tctx = tile.getContext('2d');
-  // Transparent base
   tctx.clearRect(0, 0, 8, 8);
   tctx.strokeStyle = 'rgba(220, 220, 220, 0.55)';
   tctx.lineWidth = 1.2;
@@ -2072,44 +2210,81 @@ function makeGrayStripePattern(ctx) {
   tctx.stroke();
   return ctx.createPattern(tile, 'repeat');
 }
+// Canvas pattern: transparent base + cyan diagonal stripes (for quarterly clients overlay)
+function makeCyanStripePattern(ctx) {
+  const tile = document.createElement('canvas');
+  tile.width = 8; tile.height = 8;
+  const tctx = tile.getContext('2d');
+  tctx.clearRect(0, 0, 8, 8);
+  tctx.strokeStyle = 'rgba(34, 211, 238, 0.78)';
+  tctx.lineWidth = 1.3;
+  tctx.beginPath();
+  tctx.moveTo(-2, 10); tctx.lineTo(10, -2);
+  tctx.moveTo(-2, 4);  tctx.lineTo(4,  -2);
+  tctx.moveTo(4, 10);  tctx.lineTo(10, 4);
+  tctx.stroke();
+  return ctx.createPattern(tile, 'repeat');
+}
 
-// Plugin: per-person 3-dot mini-line drawn over the hours bars (right axis),
-// plus a transparent gray-stripe overlay drawn over the close bars showing client count.
+// Plugin: per-person 3-dot mini-line over the hours bars (right axis) + split client overlay
+// over the close bars (gray = monthly clients, cyan = quarterly clients on top).
 const actualOverlayPlugin = {
   id: 'actualOverlay',
   afterDatasetsDraw(chart, args, opts) {
     if (!opts) return;
     const ctx = chart.ctx;
 
-    // === Client overlay (gray stripes inside each close bar) ===
+    // === Client overlay: gray (monthly) + cyan (quarterly) stacked stripes ===
     const clientOverlay = opts.clientOverlay;
-    if (clientOverlay && clientOverlay.clientData) {
-      const closeBaseIdx = clientOverlay.closeBaseIndices;  // [m1_idx, m2_idx, m3_idx] indices of base close datasets
+    if (clientOverlay) {
+      const monthly   = clientOverlay.monthlyClients;
+      const quarterly = clientOverlay.quarterlyClients;
+      const closeBaseIdx = clientOverlay.closeBaseIndices;
       const yScale = chart.scales[clientOverlay.yScaleId || 'y'];
-      const pattern = makeGrayStripePattern(ctx);
-      const data = clientOverlay.clientData;
+      const grayPattern = makeGrayStripePattern(ctx);
+      const cyanPattern = makeCyanStripePattern(ctx);
       const numPeople = chart.data.labels.length;
       for (let i = 0; i < numPeople; i++) {
         for (let m = 0; m < 3; m++) {
-          const v = data[i][m];
-          if (v <= 0) continue;
+          const mq = (monthly && monthly[i]) ? monthly[i][m] : 0;
+          const qq = (quarterly && quarterly[i]) ? quarterly[i][m] : 0;
+          const total = mq + qq;
+          if (total <= 0) continue;
           const meta = chart.getDatasetMeta(closeBaseIdx[m]);
           if (!meta || !meta.data || !meta.data[i]) continue;
           const bar = meta.data[i];
           const x = bar.x - bar.width / 2;
-          const yTop = yScale.getPixelForValue(v);
-          const yBottom = yScale.getPixelForValue(0);
-          const h = yBottom - yTop;
-          if (h <= 0) continue;
+          const yMonthlyTop = yScale.getPixelForValue(mq);
+          const yTotalTop   = yScale.getPixelForValue(total);
+          const yBottom     = yScale.getPixelForValue(0);
+
+          // Bottom: monthly clients (gray stripe), from yBottom up to yMonthlyTop
+          if (mq > 0) {
+            const h = yBottom - yMonthlyTop;
+            if (h > 0) {
+              ctx.save();
+              ctx.fillStyle = grayPattern;
+              ctx.fillRect(x, yMonthlyTop, bar.width, h);
+              ctx.restore();
+            }
+          }
+          // Top: quarterly clients (cyan stripe), from yMonthlyTop up to yTotalTop
+          if (qq > 0) {
+            const h = yMonthlyTop - yTotalTop;
+            if (h > 0) {
+              ctx.save();
+              ctx.fillStyle = cyanPattern;
+              ctx.fillRect(x, yTotalTop, bar.width, h);
+              ctx.restore();
+            }
+          }
+          // Thin top border at total client height for easy reading
           ctx.save();
-          ctx.fillStyle = pattern;
-          ctx.fillRect(x, yTop, bar.width, h);
-          // Optional thin top border so the stripe "height = client count" is readable
-          ctx.strokeStyle = 'rgba(220, 220, 220, 0.85)';
+          ctx.strokeStyle = qq > 0 ? 'rgba(34, 211, 238, 0.9)' : 'rgba(220, 220, 220, 0.85)';
           ctx.lineWidth = 1.2;
           ctx.beginPath();
-          ctx.moveTo(x, yTop);
-          ctx.lineTo(x + bar.width, yTop);
+          ctx.moveTo(x, yTotalTop);
+          ctx.lineTo(x + bar.width, yTotalTop);
           ctx.stroke();
           ctx.restore();
         }
@@ -2165,6 +2340,101 @@ const actualOverlayPlugin = {
   }
 };
 
+// Build a single-color swatch (or stripe pattern) span for the tooltip
+function ttipSwatch(kind) {
+  const swatchByKind = {
+    'green':       'background: var(--green-2)',
+    'blue':        'background: var(--blue-2)',
+    'cyan':        'background: var(--cyan)',
+    'amber':       'background: var(--amber)',
+    'violet':      'background: var(--violet)',
+    'gray-stripe': 'background: repeating-linear-gradient(135deg, transparent 0px, transparent 2px, rgba(220,220,220,0.6) 2px, rgba(220,220,220,0.6) 3px); border: 1px solid rgba(220,220,220,0.4)',
+    'cyan-stripe': 'background: repeating-linear-gradient(135deg, transparent 0px, transparent 2px, rgba(34,211,238,0.78) 2px, rgba(34,211,238,0.78) 3px); border: 1px solid rgba(34,211,238,0.5)',
+    'green-dot':   'background: var(--green-2)',
+  };
+  const cls = kind === 'green-dot' ? 'ttip-swatch swatch-dot' : 'ttip-swatch';
+  return `<span class="${cls}" style="${swatchByKind[kind] || 'background:#666'}"></span>`;
+}
+
+// Format a value cell for tooltip (zero → em-dash; hours → "Nh"; count → integer)
+function ttipCell(v, isHours) {
+  if (v == null || v === 0) return '<td class="ttip-val ttip-zero">—</td>';
+  if (isHours) return `<td class="ttip-val">${(Math.round(v*10)/10).toFixed(1)}h</td>`;
+  return `<td class="ttip-val">${v}</td>`;
+}
+
+// Custom HTML tooltip renderer for the combined chart
+function renderCombinedTooltip(context, snapshot, monthsAbbr) {
+  const tooltipEl = document.getElementById('combined-tooltip');
+  if (!tooltipEl) return;
+  const tooltipModel = context.tooltip;
+
+  if (tooltipModel.opacity === 0 || !tooltipModel.dataPoints || !tooltipModel.dataPoints.length) {
+    tooltipEl.style.opacity = 0;
+    return;
+  }
+
+  const idx = tooltipModel.dataPoints[0].dataIndex;
+  const s = snapshot[idx];
+  if (!s) { tooltipEl.style.opacity = 0; return; }
+
+  const anyPositive = (arr) => arr && arr.some(v => v > 0);
+  const rows = [];
+
+  // ---- Closes / Clients block ----
+  if (anyPositive(s.closes))   rows.push({ swatch: 'green',       label: 'Closes',            values: s.closes,           isHours: false });
+  if (anyPositive(s.qcloses))  rows.push({ swatch: 'cyan',        label: 'Quarterly closes',  values: s.qcloses,          isHours: false });
+  if (anyPositive(s.pcloses))  rows.push({ swatch: 'amber',       label: 'Prospect closes',   values: s.pcloses,          isHours: false });
+  if (anyPositive(s.monthlyClients))   rows.push({ swatch: 'gray-stripe', label: 'Monthly clients',   values: s.monthlyClients,   isHours: false });
+  if (anyPositive(s.quarterlyClients)) rows.push({ swatch: 'cyan-stripe', label: 'Quarterly clients', values: s.quarterlyClients, isHours: false });
+
+  // ---- Hours block ----
+  const hoursRows = [];
+  if (anyPositive(s.budget))   hoursRows.push({ swatch: 'blue',   label: 'Budget hrs',         values: s.budget,    isHours: true });
+  if (anyPositive(s.qhours))   hoursRows.push({ swatch: 'cyan',   label: 'Quarterly add-on',   values: s.qhours,    isHours: true });
+  if (anyPositive(s.precur))   hoursRows.push({ swatch: 'violet', label: 'Prospect recurring', values: s.precur,    isHours: true });
+  if (anyPositive(s.ponboard)) hoursRows.push({ swatch: 'amber',  label: 'Prospect onboarding',values: s.ponboard,  isHours: true });
+  if (anyPositive(s.actual))   hoursRows.push({ swatch: 'green-dot', label: 'Actual hrs',      values: s.actual,    isHours: true });
+
+  let html = `<div class="ttip-title">${escapeHtml(s.label)}</div><table class="ttip-grid">`;
+  html += `<tr class="ttip-month-header"><td></td><td></td><td class="ttip-val">${escapeHtml(monthsAbbr[0])}</td><td class="ttip-val">${escapeHtml(monthsAbbr[1])}</td><td class="ttip-val">${escapeHtml(monthsAbbr[2])}</td></tr>`;
+  const allRows = rows.concat(hoursRows.length ? [{ sep: true }] : [], hoursRows);
+  for (const r of allRows) {
+    if (r.sep) { html += `<tr><td colspan="5" class="ttip-sep"></td></tr>`; continue; }
+    html += `<tr><td class="ttip-swatch-cell">${ttipSwatch(r.swatch)}</td><td class="ttip-label">${r.label}</td>${ttipCell(r.values[0], r.isHours)}${ttipCell(r.values[1], r.isHours)}${ttipCell(r.values[2], r.isHours)}</tr>`;
+  }
+  html += '</table>';
+  tooltipEl.innerHTML = html;
+
+  // Position relative to chart-card. Caret is in canvas coords; we anchor at canvas.offsetLeft + caretX.
+  const chartCard = context.chart.canvas.closest('.chart-card');
+  const canvasRect = context.chart.canvas.getBoundingClientRect();
+  const cardRect = chartCard.getBoundingClientRect();
+  const offsetX = canvasRect.left - cardRect.left + tooltipModel.caretX;
+  const offsetY = canvasRect.top  - cardRect.top  + tooltipModel.caretY;
+
+  // Measure tooltip after content set
+  tooltipEl.style.opacity = 0;
+  tooltipEl.style.left = '0px'; tooltipEl.style.top = '0px';
+  const ttipRect = tooltipEl.getBoundingClientRect();
+  const ttipWidth = ttipRect.width;
+  const ttipHeight = ttipRect.height;
+
+  // Default placement: to the right of the caret, vertically centered
+  let left = offsetX + 14;
+  let top  = offsetY - ttipHeight / 2;
+  // If overflow on the right, flip to the left of the caret
+  if (left + ttipWidth > cardRect.width - 8) left = offsetX - ttipWidth - 14;
+  if (left < 8) left = 8;
+  // Clamp vertically within card
+  if (top < 8) top = 8;
+  if (top + ttipHeight > cardRect.height - 8) top = cardRect.height - ttipHeight - 8;
+
+  tooltipEl.style.left = left + 'px';
+  tooltipEl.style.top = top + 'px';
+  tooltipEl.style.opacity = 1;
+}
+
 function buildCombined() {
   const people = getFilteredPeople();
   const emptyDiv = document.getElementById('combined-empty');
@@ -2190,8 +2460,11 @@ function buildCombined() {
   const hasProspectClients = hasProspects && pClients.some(c => c.some(v => v > 0));
   const hasProspectHours   = hasProspects && (pRecur.some(r => r.some(v => v > 0)) || pOnboard.some(r => r.some(v => v > 0)));
 
-  // Total client counts per person per month (active + prospect when layered)
-  const clientCounts = people.map((p, idx) => [0,1,2].map(m => p.data.clients[m] + (hasProspectClients ? pClients[idx][m] : 0)));
+  // Client overlay data split into monthly + quarterly (so the chart can show the quarterly portion in cyan stripes)
+  // Prospect clients are stripe-counted in the monthly bucket (they're treated as ongoing portfolio additions).
+  const monthlyClients   = people.map((p, idx) => [0,1,2].map(m => (p.data.monthlyClients[m] || 0) + (hasProspectClients ? pClients[idx][m] : 0)));
+  const quarterlyClients = people.map(p          => [0,1,2].map(m => p.data.quarterlyClients[m] || 0));
+  const clientCounts     = people.map((p, idx) => [0,1,2].map(m => monthlyClients[idx][m] + quarterlyClients[idx][m]));
 
   const datasets = [];
   const closeBaseIndices = [-1, -1, -1]; // base close-bar index per month, used by client overlay plugin
@@ -2270,6 +2543,23 @@ function buildCombined() {
   const ySuggestedMaxHours   = Math.ceil((maxHours * 1.1) / 10) * 10;
 
   if (combinedChart) combinedChart.destroy();
+
+  // Build the snapshot of data the custom tooltip will read from on hover
+  const tooltipSnapshot = people.map((p, idx) => ({
+    label: formatLabel(p),
+    closes:      [0,1,2].map(m => p.data.closes_regular[m]),
+    qcloses:     [0,1,2].map(m => p.data.closes_extra[m]),
+    pcloses:     pClients[idx].slice(),
+    monthlyClients:   monthlyClients[idx].slice(),
+    quarterlyClients: quarterlyClients[idx].slice(),
+    budget:      [0,1,2].map(m => Math.round(p.data.budget_regular[m]*10)/10),
+    qhours:      [0,1,2].map(m => Math.round(p.data.budget_extra[m]*10)/10),
+    precur:      pRecur[idx].slice(),
+    ponboard:    pOnboard[idx].slice(),
+    actual:      actualData[idx].slice(),
+  }));
+  const monthsAbbr = DATA.months.map(s => s.slice(0, 3));
+
   combinedChart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: { labels, datasets },
@@ -2279,31 +2569,8 @@ function buildCombined() {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1f1f1f', borderColor: '#444', borderWidth: 1,
-          titleColor: '#f0f0f0', bodyColor: '#d0d0d0', padding: 10,
-          filter: (item) => item.parsed.y > 0,
-          callbacks: {
-            label: ctx => {
-              const isHours = ctx.dataset.yAxisID === 'y2';
-              const v = ctx.parsed.y;
-              return isHours ? `${ctx.dataset.label}: ${v.toFixed(1)}h` : `${ctx.dataset.label}: ${v}`;
-            },
-            afterBody: (items) => {
-              if (!items.length) return '';
-              const idx = items[0].dataIndex;
-              const a = actualData[idx];
-              const c = clientCounts[idx];
-              return [
-                '',
-                'Clients: ' + c.map((n,i) => DATA.months[i].slice(0,3) + ' ' + n).join(' / '),
-                '',
-                'Actual hours (avg-based projection):',
-                `  ${DATA.months[0]}: ${a[0].toFixed(1)}h`,
-                `  ${DATA.months[1]}: ${a[1].toFixed(1)}h`,
-                `  ${DATA.months[2]}: ${a[2].toFixed(1)}h`,
-              ];
-            }
-          }
+          enabled: false,
+          external: (context) => renderCombinedTooltip(context, tooltipSnapshot, monthsAbbr),
         },
         actualOverlay: {
           actualData: actualData,
@@ -2311,7 +2578,8 @@ function buildCombined() {
           colors: [PAL.green[0], PAL.green[1], PAL.green[2]],
           yScaleId: 'y2',
           clientOverlay: {
-            clientData: clientCounts,
+            monthlyClients: monthlyClients,
+            quarterlyClients: quarterlyClients,
             closeBaseIndices: closeBaseIndices,
             yScaleId: 'y',
           },
@@ -2578,6 +2846,15 @@ function buildTransitionsTable() {
         <td class="num" style="color:var(--text-dim)">${(t.budget || 0).toFixed(1)}h</td>
       </tr>`;
     }
+    if (t.cancelled) {
+      return `<tr class="cancelled-row" title="Client cancellation — workload drops off effective this date. Budget hours shown will leave the team's load.">
+        <td>${pillForIso(t.date_iso)} <span class="cancelled-badge">Cancelling</span></td>
+        <td>${escapeHtml(t.client)}</td>
+        <td style="color:var(--text-dim)">${escapeHtml(displayPersonName(t.from))}</td>
+        <td style="color:#f87171;font-style:italic">(cancelled)</td>
+        <td class="num" style="color:#f87171">−${t.budget.toFixed(1)}h</td>
+      </tr>`;
+    }
     return `<tr>
       <td>${pillForIso(t.date_iso)}</td>
       <td>${escapeHtml(t.client)}</td>
@@ -2623,6 +2900,7 @@ function getAllDisplayNames() {
 
 function displayPerson(raw) {
   if (raw == null || raw === '') return null;
+  if (raw === CANCELLED_PLACEHOLDER) return '(cancelled)';
   if (raw.startsWith('_')) return 'Open seat';
   if (DISPLAY_NAME_OVERRIDES[raw]) return DISPLAY_NAME_OVERRIDES[raw];
   // Default: First L. — used in portfolio table cells and the transitions From/To columns
@@ -2673,9 +2951,14 @@ function nextCellHtml(r) {
 function transitionPillHtml(c) {
   if (!c.transition) return '';
   const monthShort = (c.transition.month_short || '').toLowerCase();
+  const isCancelled = !!c.transition.cancelled;
   const dest = displayPerson(c.transition.to) || c.transition.to || 'TBD';
-  const tip = `→ ${dest} on ${fullDate(c.transition.to_iso)}`;
-  return `<span class="trans-pill ${monthShort}" data-jump="${escapeHtml(c.client)}" title="${escapeHtml(tip)}">→ ${escapeHtml(c.transition.month_short)} ${escapeHtml(String(new Date(c.transition.to_iso+'T00:00:00').getFullYear()).slice(2))}</span>`;
+  const tip = isCancelled
+    ? `Cancellation effective ${fullDate(c.transition.to_iso)}`
+    : `→ ${dest} on ${fullDate(c.transition.to_iso)}`;
+  const cls = 'trans-pill ' + monthShort + (isCancelled ? ' cancelled-pill' : '');
+  const symbol = isCancelled ? '⊘' : '→';
+  return `<span class="${cls}" data-jump="${escapeHtml(c.client)}" title="${escapeHtml(tip)}">${symbol} ${escapeHtml(c.transition.month_short)} ${escapeHtml(String(new Date(c.transition.to_iso+'T00:00:00').getFullYear()).slice(2))}</span>`;
 }
 
 function renderFlagPills(c, roleShort) {
@@ -2751,10 +3034,14 @@ function clientRowHtml(c, roleShort) {
   const transPill = transitionPillHtml(c);
   const flagPills = renderFlagPills(c, roleShort);
   const expandHtml = buildExpand(c, roleShort);
+  const cancellingBadge = c.cancelling
+    ? `<span class="cancelled-badge" title="Cancelling${c.termDate_iso ? ' — terminates ' + shortDate(c.termDate_iso) : ''}">Cancelling</span>`
+    : '';
+  const rowClass = c.cancelling ? 'client-row cancelling-row ' + expandedCls : 'client-row ' + expandedCls;
   return `
-    <tr class="client-row ${expandedCls}" data-client="${escapeHtml(c.client)}">
+    <tr class="${rowClass}" data-client="${escapeHtml(c.client)}">
       <td class="caret-col"><span class="caret">▸</span></td>
-      <td><span class="client-cell"><span class="client-name">${escapeHtml(c.client)}</span>${transPill}${flagPills}</span></td>
+      <td><span class="client-cell"><span class="client-name">${escapeHtml(c.client)}</span>${cancellingBadge}${transPill}${flagPills}</span></td>
       <td>${sinceStr}</td>
       <td>${personStr}</td>
       <td class="num">${budStr}</td>
@@ -2802,12 +3089,23 @@ function prospectsSectionHeader(count) {
 
 function summarizeClients(clientList, roleShort) {
   let count = clientList.length, budget = 0, actual = 0;
+  let mCloses = 0, qCloses = 0;
   clientList.forEach(c => {
     const r = c.roles[roleShort];
     if (r.budget != null) budget += r.budget;
     if (r.actual != null) actual += r.actual;
+    const closes = c.closes || 0;
+    const freq = (c.frequency || '').trim().toLowerCase();
+    if (freq === 'monthly') mCloses += closes;
+    else if (freq === 'quarterly' || freq === 'quartery') qCloses += closes;
   });
-  return { count, budget: Math.round(budget * 10) / 10, actual: Math.round(actual * 10) / 10 };
+  return {
+    count,
+    budget: Math.round(budget * 10) / 10,
+    actual: Math.round(actual * 10) / 10,
+    mCloses,
+    qCloses,
+  };
 }
 
 function sortClients(list, roleShort, sortCol, dirN) {
@@ -2852,11 +3150,14 @@ function sectionHeaderHtml(label, stats, type) {
   if (type === 'running') { rowCls = 'running-total-row'; lblCls = 'running-label'; stCls = 'running-stats'; }
   else if (type === 'departing') { rowCls = 'departing-header-row'; lblCls = 'departing-label'; stCls = 'departing-stats'; }
   else { rowCls = 'section-header-row'; lblCls = 'section-label'; stCls = 'section-stats'; }
+  // Only show close-cadence portions when non-zero to keep the row tidy
+  const mClosePart = stats.mCloses > 0 ? ` · <b>${stats.mCloses}</b> monthly close${stats.mCloses===1?'':'s'}` : '';
+  const qClosePart = stats.qCloses > 0 ? ` · <b>${stats.qCloses}</b> quarterly close${stats.qCloses===1?'':'s'}` : '';
   return `<tr class="${rowCls}">
     <td colspan="8">
       <div>
         <span class="${lblCls}">${escapeHtml(label)}</span>
-        <span class="${stCls}"><b>${stats.count}</b> client${stats.count===1?'':'s'} · <b>${stats.budget.toFixed(1)}h</b> budget · <b>${stats.actual.toFixed(1)}h</b> actual</span>
+        <span class="${stCls}"><b>${stats.count}</b> client${stats.count===1?'':'s'}${mClosePart}${qClosePart} · <b>${stats.budget.toFixed(1)}h</b> budget · <b>${stats.actual.toFixed(1)}h</b> actual</span>
       </div>
     </td>
   </tr>`;
@@ -2962,11 +3263,14 @@ function renderFlatPortfolio(role, roleShort) {
     }
   }
 
+  // Compose the closes text: hide cadence parts that are zero
+  const mClosesPart = totals.mCloses > 0 ? `<span style="color:var(--text-dim);font-size:11px;margin-left:6px">${totals.mCloses} mo close${totals.mCloses===1?'':'s'}</span>` : '';
+  const qClosesPart = totals.qCloses > 0 ? `<span style="color:var(--text-dim);font-size:11px;margin-left:6px">${totals.qCloses} qtr close${totals.qCloses===1?'':'s'}</span>` : '';
   const totalRowHtml = `<tr class="total-row">
       <td></td>
       <td class="label-cell">Total</td>
       <td></td>
-      <td>${totals.count} clients</td>
+      <td>${totals.count} clients${mClosesPart}${qClosesPart}</td>
       <td class="num">${totals.budget.toFixed(1)}h</td>
       <td class="num">${totals.actual.toFixed(1)}h</td>
       <td></td>
@@ -3017,6 +3321,7 @@ function renderSectionedPortfolio(role, roleShort, filteredRaw) {
   }
 
   let runCount = currentStats.count, runBudget = currentStats.budget, runActual = currentStats.actual;
+  let runMCloses = currentStats.mCloses, runQCloses = currentStats.qCloses;
 
   const allMonths = [...new Set([...Object.keys(incomingByMo), ...Object.keys(departingByMo)])].sort();
   allMonths.forEach(monthKey => {
@@ -3039,16 +3344,18 @@ function renderSectionedPortfolio(role, roleShort, filteredRaw) {
     }
     const joinStats = summarizeClients(joiners, roleShort);
     const depStats  = summarizeClients(departers, roleShort);
-    runCount  += joinStats.count - depStats.count;
-    runBudget = Math.round((runBudget + joinStats.budget - depStats.budget) * 10) / 10;
-    runActual = Math.round((runActual + joinStats.actual - depStats.actual) * 10) / 10;
+    runCount   += joinStats.count   - depStats.count;
+    runBudget   = Math.round((runBudget + joinStats.budget - depStats.budget) * 10) / 10;
+    runActual   = Math.round((runActual + joinStats.actual - depStats.actual) * 10) / 10;
+    runMCloses += joinStats.mCloses - depStats.mCloses;
+    runQCloses += joinStats.qCloses - depStats.qCloses;
 
     const noteParts = [];
     if (joiners.length)   noteParts.push(`+${joiners.length} joining`);
     if (departers.length) noteParts.push(`−${departers.length} departing`);
     const note = noteParts.length ? ` (${noteParts.join(', ')})` : '';
     html.push(sectionHeaderHtml(`After ${monthFull} transitions${note}`,
-                                 { count: runCount, budget: runBudget, actual: runActual }, 'running'));
+                                 { count: runCount, budget: runBudget, actual: runActual, mCloses: runMCloses, qCloses: runQCloses }, 'running'));
   });
 
   // Prospects (if any toggled on) where this person is the destination for the current role
@@ -3218,8 +3525,19 @@ document.getElementById('custom-clear').addEventListener('click', () => {
   buildCustomPanel(); renderAll(); updateChipCustomLabel();
 });
 
-// Prospects button + panel
-document.getElementById('prospects-btn').addEventListener('click', (e) => {
+// Prospects button: toggle (master on/off) and label area (opens dropdown)
+document.getElementById('prospects-toggle').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!DATA || !DATA.prospects || DATA.prospects.length === 0) return;
+  if (state.prospectsEnabled.size > 0) {
+    state.prospectsEnabled.clear();
+  } else {
+    DATA.prospects.forEach(p => state.prospectsEnabled.add(p.client));
+  }
+  buildProspectsPanel(); // refreshes panel checkboxes + active state
+  renderAll();
+});
+document.getElementById('prospects-label-area').addEventListener('click', (e) => {
   e.stopPropagation();
   const panel = document.getElementById('prospects-panel');
   panel.classList.toggle('open');
