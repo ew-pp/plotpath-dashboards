@@ -742,9 +742,9 @@
         <div class="legend-group"><span class="lbl">Closes</span>
           <span class="swatch-row"><span class="swatch" style="background:var(--green-1)"></span><span class="swatch" style="background:var(--green-2)"></span><span class="swatch" style="background:var(--green-3)"></span></span></div>
         <div class="legend-group"><span class="lbl">Monthly clients</span>
-          <span class="swatch-row"><span class="swatch" style="background:repeating-linear-gradient(135deg, transparent 0px, transparent 3px, rgba(220,220,220,0.6) 3px, rgba(220,220,220,0.6) 4px); border:1px solid rgba(220,220,220,0.4)"></span></span></div>
+          <span class="swatch-row"><span class="swatch" style="background:repeating-linear-gradient(135deg, transparent 0px, transparent 3px, rgba(34,211,238,0.45) 3px, rgba(34,211,238,0.45) 4px); border:1px solid rgba(34,211,238,0.95)"></span></span></div>
         <div class="legend-group"><span class="lbl">Quarterly clients</span>
-          <span class="swatch-row"><span class="swatch" style="background:repeating-linear-gradient(45deg, transparent 0px, transparent 3px, rgba(34,211,238,0.78) 3px, rgba(34,211,238,0.78) 4px); border:1px solid rgba(34,211,238,0.5)"></span></span></div>
+          <span class="swatch-row"><span class="swatch" style="background:repeating-linear-gradient(45deg, transparent 0px, transparent 3px, rgba(34,211,238,0.45) 3px, rgba(34,211,238,0.45) 4px); border:1px solid rgba(34,211,238,0.95)"></span></span></div>
         <div class="legend-group"><span class="lbl">Budget hrs</span>
           <span class="swatch-row"><span class="swatch" style="background:var(--blue-1)"></span><span class="swatch" style="background:var(--blue-2)"></span><span class="swatch" style="background:var(--blue-3)"></span></span></div>
         <div class="legend-group"><span class="lbl">Quarterly add-on</span>
@@ -2222,33 +2222,67 @@ function updateProspectsButton() {
 
 // ===== Charts =====
 let combinedChart = null;
+let chartHoveredPersonIdx = -1; // -1 = none; otherwise the X-axis category index currently underlined
 
-// Canvas pattern: transparent base + subtle gray diagonal stripes (for monthly clients overlay)
-function makeGrayStripePattern(ctx) {
+// Plugin: draws a 1px underline under the X-axis label of the currently hovered person
+const personLabelHoverPlugin = {
+  id: 'personLabelHover',
+  afterDraw(chart) {
+    if (chartHoveredPersonIdx < 0) return;
+    const xScale = chart.scales.x;
+    if (!xScale || chartHoveredPersonIdx >= xScale.ticks.length) return;
+    const ctx = chart.ctx;
+    const tick = xScale.ticks[chartHoveredPersonIdx];
+    const x = xScale.getPixelForTick(chartHoveredPersonIdx);
+    const labelFont = xScale.options.ticks.font || {};
+    const fontSize = labelFont.size || 12;
+    // Approximate label baseline: just below the axis line.
+    // Chart.js positions labels with a small padding; ~(fontSize + 8) below the axis bottom edge.
+    const yAxisBottom = xScale.bottom;
+    const labelMidY = yAxisBottom + fontSize / 2 + 6;
+    const text = String(tick.label || chart.data.labels[chartHoveredPersonIdx] || '');
+    // Measure text width to size the underline appropriately
+    ctx.save();
+    ctx.font = `${labelFont.weight || '500'} ${fontSize}px ${labelFont.family || 'sans-serif'}`;
+    const textWidth = ctx.measureText(text).width;
+    ctx.strokeStyle = '#93c5fd';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x - textWidth / 2, labelMidY + fontSize / 2 + 1);
+    ctx.lineTo(x + textWidth / 2, labelMidY + fontSize / 2 + 1);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
+
+// Canvas pattern: transparent base + teal diagonal stripes at reduced opacity (subtle).
+// Monthly client overlay uses 135° diagonal direction.
+function makeMonthlyClientStripe(ctx) {
   const tile = document.createElement('canvas');
   tile.width = 8; tile.height = 8;
   const tctx = tile.getContext('2d');
   tctx.clearRect(0, 0, 8, 8);
-  tctx.strokeStyle = 'rgba(220, 220, 220, 0.55)';
+  tctx.strokeStyle = 'rgba(34, 211, 238, 0.45)';
   tctx.lineWidth = 1.2;
   tctx.beginPath();
+  // 135° (top-right → bottom-left)
   tctx.moveTo(-2, 10); tctx.lineTo(10, -2);
   tctx.moveTo(-2, 4);  tctx.lineTo(4,  -2);
   tctx.moveTo(4, 10);  tctx.lineTo(10, 4);
   tctx.stroke();
   return ctx.createPattern(tile, 'repeat');
 }
-// Canvas pattern: transparent base + cyan diagonal stripes running OPPOSITE direction to monthly's
-// (45° vs 135°) so monthly + quarterly read as visually distinct cross-hatched patterns.
-function makeCyanStripePattern(ctx) {
+// Quarterly client overlay: same teal at same opacity, but OPPOSITE 45° angle
+// so monthly + quarterly cross-hatch when stacked.
+function makeQuarterlyClientStripe(ctx) {
   const tile = document.createElement('canvas');
   tile.width = 8; tile.height = 8;
   const tctx = tile.getContext('2d');
   tctx.clearRect(0, 0, 8, 8);
-  tctx.strokeStyle = 'rgba(34, 211, 238, 0.78)';
-  tctx.lineWidth = 1.3;
+  tctx.strokeStyle = 'rgba(34, 211, 238, 0.45)';
+  tctx.lineWidth = 1.2;
   tctx.beginPath();
-  // Opposite-diagonal lines (top-left → bottom-right)
+  // 45° (top-left → bottom-right)
   tctx.moveTo(-2, -2); tctx.lineTo(10, 10);
   tctx.moveTo(-2, 4);  tctx.lineTo(4, 10);
   tctx.moveTo(4, -2);  tctx.lineTo(10, 4);
@@ -2271,8 +2305,8 @@ const actualOverlayPlugin = {
       const quarterly = clientOverlay.quarterlyClients;
       const closeBaseIdx = clientOverlay.closeBaseIndices;
       const yScale = chart.scales[clientOverlay.yScaleId || 'y'];
-      const grayPattern = makeGrayStripePattern(ctx);
-      const cyanPattern = makeCyanStripePattern(ctx);
+      const monthlyPattern   = makeMonthlyClientStripe(ctx);
+      const quarterlyPattern = makeQuarterlyClientStripe(ctx);
       const numPeople = chart.data.labels.length;
       for (let i = 0; i < numPeople; i++) {
         for (let m = 0; m < 3; m++) {
@@ -2288,35 +2322,35 @@ const actualOverlayPlugin = {
           const yTotalTop   = yScale.getPixelForValue(total);
           const yBottom     = yScale.getPixelForValue(0);
 
-          // Bottom: monthly clients (gray stripe), from yBottom up to yMonthlyTop
+          // Bottom: monthly clients (teal 135° stripe)
           if (mq > 0) {
             const h = yBottom - yMonthlyTop;
             if (h > 0) {
               ctx.save();
-              ctx.fillStyle = grayPattern;
+              ctx.fillStyle = monthlyPattern;
               ctx.fillRect(x, yMonthlyTop, bar.width, h);
               ctx.restore();
             }
           }
-          // Top: quarterly clients (cyan stripe), from yMonthlyTop up to yTotalTop
+          // Top: quarterly clients (teal 45° opposite stripe)
           if (qq > 0) {
             const h = yMonthlyTop - yTotalTop;
             if (h > 0) {
               ctx.save();
-              ctx.fillStyle = cyanPattern;
+              ctx.fillStyle = quarterlyPattern;
               ctx.fillRect(x, yTotalTop, bar.width, h);
               ctx.restore();
             }
           }
-          // Thin top border at total client height for easy reading
+          // Top-of-bar accent line — full cyan, the "total clients" tick
           ctx.save();
-          ctx.strokeStyle = qq > 0 ? 'rgba(34, 211, 238, 0.9)' : 'rgba(220, 220, 220, 0.85)';
+          ctx.strokeStyle = 'rgba(34, 211, 238, 0.95)';
           ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.moveTo(x, yTotalTop);
           ctx.lineTo(x + bar.width, yTotalTop);
           ctx.stroke();
-          // Boundary line at the monthly/quarterly transition — only draw when both segments are present
+          // Boundary line at the monthly/quarterly transition — same full cyan, the secondary tick
           if (mq > 0 && qq > 0) {
             ctx.strokeStyle = 'rgba(34, 211, 238, 0.95)';
             ctx.lineWidth = 1;
@@ -2387,8 +2421,8 @@ function ttipSwatch(kind) {
     'cyan':        'background: var(--cyan)',
     'amber':       'background: var(--amber)',
     'violet':      'background: var(--violet)',
-    'gray-stripe': 'background: repeating-linear-gradient(135deg, transparent 0px, transparent 2px, rgba(220,220,220,0.6) 2px, rgba(220,220,220,0.6) 3px); border: 1px solid rgba(220,220,220,0.4)',
-    'cyan-stripe': 'background: repeating-linear-gradient(45deg, transparent 0px, transparent 2px, rgba(34,211,238,0.78) 2px, rgba(34,211,238,0.78) 3px); border: 1px solid rgba(34,211,238,0.5)',
+    'monthly-stripe': 'background: repeating-linear-gradient(135deg, transparent 0px, transparent 2px, rgba(34,211,238,0.45) 2px, rgba(34,211,238,0.45) 3px); border: 1px solid rgba(34,211,238,0.95)',
+    'quarterly-stripe': 'background: repeating-linear-gradient(45deg, transparent 0px, transparent 2px, rgba(34,211,238,0.45) 2px, rgba(34,211,238,0.45) 3px); border: 1px solid rgba(34,211,238,0.95)',
     'green-dot':   'background: var(--green-2)',
   };
   const cls = kind === 'green-dot' ? 'ttip-swatch swatch-dot' : 'ttip-swatch';
@@ -2424,8 +2458,8 @@ function renderCombinedTooltip(context, snapshot, monthsAbbr) {
   if (anyPositive(s.closes))   rows.push({ swatch: 'green',       label: 'Closes',            values: s.closes,           isHours: false });
   if (anyPositive(s.qcloses))  rows.push({ swatch: 'cyan',        label: 'Quarterly closes',  values: s.qcloses,          isHours: false });
   if (anyPositive(s.pcloses))  rows.push({ swatch: 'amber',       label: 'Prospect closes',   values: s.pcloses,          isHours: false });
-  if (anyPositive(s.monthlyClients))   rows.push({ swatch: 'gray-stripe', label: 'Monthly clients',   values: s.monthlyClients,   isHours: false });
-  if (anyPositive(s.quarterlyClients)) rows.push({ swatch: 'cyan-stripe', label: 'Quarterly clients', values: s.quarterlyClients, isHours: false });
+  if (anyPositive(s.monthlyClients))   rows.push({ swatch: 'monthly-stripe', label: 'Monthly clients',   values: s.monthlyClients,   isHours: false });
+  if (anyPositive(s.quarterlyClients)) rows.push({ swatch: 'quarterly-stripe', label: 'Quarterly clients', values: s.quarterlyClients, isHours: false });
 
   // ---- Hours block ----
   const hoursRows = [];
@@ -2434,6 +2468,7 @@ function renderCombinedTooltip(context, snapshot, monthsAbbr) {
   if (anyPositive(s.precur))   hoursRows.push({ swatch: 'violet', label: 'Prospect recurring', values: s.precur,    isHours: true });
   if (anyPositive(s.ponboard)) hoursRows.push({ swatch: 'amber',  label: 'Prospect onboarding',values: s.ponboard,  isHours: true });
   if (anyPositive(s.actual))   hoursRows.push({ swatch: 'green-dot', label: 'Actual hrs',      values: s.actual,    isHours: true });
+  if (anyPositive(s.qactual))  hoursRows.push({ swatch: 'cyan',   label: 'Quarterly bump (actual)', values: s.qactual, isHours: true });
 
   let html = `<div class="ttip-title">${escapeHtml(s.label)}</div><table class="ttip-grid">`;
   html += `<tr class="ttip-month-header"><td></td><td></td><td class="ttip-val">${escapeHtml(monthsAbbr[0])}</td><td class="ttip-val">${escapeHtml(monthsAbbr[1])}</td><td class="ttip-val">${escapeHtml(monthsAbbr[2])}</td></tr>`;
@@ -2443,10 +2478,6 @@ function renderCombinedTooltip(context, snapshot, monthsAbbr) {
     html += `<tr><td class="ttip-swatch-cell">${ttipSwatch(r.swatch)}</td><td class="ttip-label">${r.label}</td>${ttipCell(r.values[0], r.isHours)}${ttipCell(r.values[1], r.isHours)}${ttipCell(r.values[2], r.isHours)}</tr>`;
   }
   html += '</table>';
-  // Footnote: when any Q-hours row was shown, clarify the asymmetry with Actual hours
-  if (anyPositive(s.qhours)) {
-    html += `<div class="ttip-footnote">Actual hrs already include quarterly clients firing in Apr/Jul/Oct/Jan — no separate "actual quarterly" row.</div>`;
-  }
   tooltipEl.innerHTML = html;
 
   // Position relative to chart-card. Caret is in canvas coords; we anchor at canvas.offsetLeft + caretX.
@@ -2587,7 +2618,9 @@ function buildCombined() {
 
   if (combinedChart) combinedChart.destroy();
 
-  // Build the snapshot of data the custom tooltip will read from on hover
+  // Build the snapshot of data the custom tooltip will read from on hover.
+  // Note: "actual" here is the REGULAR portion only — the quarterly portion lives in "qactual".
+  // The chart's actual-hours dot still uses the combined total (constructed earlier as actualData).
   const tooltipSnapshot = people.map((p, idx) => ({
     label: formatLabel(p),
     closes:      [0,1,2].map(m => p.data.closes_regular[m]),
@@ -2599,7 +2632,8 @@ function buildCombined() {
     qhours:      [0,1,2].map(m => Math.round(p.data.budget_extra[m]*10)/10),
     precur:      pRecur[idx].slice(),
     ponboard:    pOnboard[idx].slice(),
-    actual:      actualData[idx].slice(),
+    actual:      [0,1,2].map(m => Math.round(p.data.actual_regular[m]*10)/10),
+    qactual:     [0,1,2].map(m => Math.round(p.data.actual_extra[m]*10)/10),
   }));
   const monthsAbbr = DATA.months.map(s => s.slice(0, 3));
 
@@ -2642,9 +2676,59 @@ function buildCombined() {
         },
       }
     },
-    plugins: [actualOverlayPlugin]
+    plugins: [actualOverlayPlugin, personLabelHoverPlugin]
   });
   document.getElementById('combined-title').textContent = DATA.roles[state.roleKey].title + ' \u2014 Workload & Hours';
+
+  // Canvas-level mouse listeners: when cursor is below the x-axis baseline within a person's column,
+  // show pointer + draw underline. Click triggers the same single-select code as the Custom filter's name-click.
+  // Use AbortController so we don't accumulate listeners across re-renders.
+  if (canvas._labelHoverAbort) canvas._labelHoverAbort.abort();
+  canvas._labelHoverAbort = new AbortController();
+  const abortSignal = canvas._labelHoverAbort.signal;
+  const peopleRawNames = people.map(p => p.raw_name);
+  const findHoveredPersonIdx = (evt) => {
+    if (!combinedChart) return -1;
+    const rect = canvas.getBoundingClientRect();
+    const xPx = evt.clientX - rect.left;
+    const yPx = evt.clientY - rect.top;
+    const xScale = combinedChart.scales.x;
+    if (!xScale) return -1;
+    if (yPx < xScale.bottom) return -1;
+    if (yPx > xScale.bottom + 30) return -1;
+    const v = xScale.getValueForPixel(xPx);
+    if (v == null) return -1;
+    const idx = Math.round(v);
+    if (idx < 0 || idx >= peopleRawNames.length) return -1;
+    return idx;
+  };
+  canvas.addEventListener('mousemove', (evt) => {
+    const idx = findHoveredPersonIdx(evt);
+    if (idx !== chartHoveredPersonIdx) {
+      chartHoveredPersonIdx = idx;
+      canvas.style.cursor = (idx >= 0) ? 'pointer' : 'default';
+      if (combinedChart) combinedChart.draw();
+    }
+  }, { signal: abortSignal });
+  canvas.addEventListener('mouseleave', () => {
+    if (chartHoveredPersonIdx !== -1) {
+      chartHoveredPersonIdx = -1;
+      canvas.style.cursor = 'default';
+      if (combinedChart) combinedChart.draw();
+    }
+  }, { signal: abortSignal });
+  canvas.addEventListener('click', (evt) => {
+    const idx = findHoveredPersonIdx(evt);
+    if (idx < 0) return;
+    const rawName = peopleRawNames[idx];
+    state.customSelected.clear();
+    state.customSelected.add(rawName);
+    state.filterMode = 'custom';
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.mode === 'custom'));
+    buildCustomPanel();
+    updateChipCustomLabel();
+    renderAll();
+  }, { signal: abortSignal });
 }
 
 // ===== Net change table =====
